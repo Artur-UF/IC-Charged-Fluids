@@ -3,7 +3,7 @@
 # include <time.h>
 # include <math.h>
 
-// Para compilar com a lib math tenho que usar $ gcc <nome.c> -o <nome> -lm
+// Para compilar com a lib math tenho que usar $ gcc partic_gen.c -o partic_gen -lm
 
 
 struct particle {
@@ -18,7 +18,7 @@ int main () {
 	struct particle check (struct particle todas[], int ind, double r, double min, double max);	
 	
 	// Aresta da caixa
-	double l = 200;
+	double l = 50;
 	
 	// Número  e raio das partículas
 	int n = 100;

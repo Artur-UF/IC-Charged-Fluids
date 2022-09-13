@@ -4,7 +4,7 @@
 # include <math.h>
 
 // Para compilar com a lib math tenho que usar $ gcc partic_gen.c -o partic_gen -lm
-
+// Para abrir o Jmol e verificar $ java -jar Jmol.jar
 
 struct particle {
 		double p[3];
@@ -18,11 +18,11 @@ int main () {
 	struct particle check (struct particle todas[], int ind, double r, double min, double max);	
 	
 	// Aresta da caixa
-	double l = 50;
+	double l = 30;
 	
 	// Número  e raio das partículas
 	int n = 100;
-	double r = 0.5;
+	double r = 2;
 	
 	// Limites da caixa centrada em 0 (para que as partículas inteiras entrem)
 	double min = (-l/2) + r;
@@ -30,6 +30,10 @@ int main () {
 	
 	// Vetor de partículas
 	struct particle todas[n];
+	/*
+	FAZ O CHECADOR DNV
+	*/
+	struct particle *ptodas = todas;
 	
 	// Gerando as coordenadas para cada partícula
 	for (int i = 0; i < n; ++i){
@@ -106,6 +110,7 @@ struct particle check (struct particle todas[], int ind, double r, double min, d
 		if (dist(dx, dy, dz) > r) {
 			return todas[ind];
 		} else {
+			printf ("Checando dnv");
 			todas[ind].p[0] = uniform(min, max);
 			todas[ind].p[1] = uniform(min, max);
 			todas[ind].p[2] = uniform(min, max);

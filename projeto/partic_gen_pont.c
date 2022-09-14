@@ -15,10 +15,10 @@ int main () {
 	
 	double uniform (double min, double max);	
 	double dist (double dx, double dy, double dz);
-	struct particle check (struct particle todas[], int ind, double r, double min, double max);	
+	struct particle check (struct particle *ptodas, int ind, double r, double min, double max);	
 	
 	// Aresta da caixa
-	double l = 15;
+	double l = 30;
 	
 	// Número  e raio das partículas
 	int n = 100;
@@ -41,14 +41,15 @@ int main () {
 	
 	// Gerando as coordenadas para cada partícula
 	for (int i = 1; i < n; ++i){
+		++ptodas;
 		todas[i].p[0] = uniform(min, max);
 		todas[i].p[1] = uniform(min, max);
 		todas[i].p[2] = uniform(min, max);
-		todas[i] = check(todas, i, r, min, max);
+		todas[i] = check(ptodas, i, r, min, max);
 	}
 	
 	// Escrita do arquivo
-	FILE *ark = fopen("particulas.txt", "w");
+	FILE *ark = fopen("particulas_pont.txt", "w");
 	fprintf (ark, "%i\n\n", n);
 	
 	for (int i = 0; i < n; ++i) {
@@ -101,26 +102,30 @@ double dist (double dx, double dy, double dz){
 }
 
 
-struct particle check (struct particle todas[], int ind, double r, double min, double max) {
+struct particle check (struct particle *ptodas, int ind, double r, double min, double max) {
 	/*
 	Função recursiva que checa a distância entre a partícula gerada e o resto delas
 	*/
 	int c = 0;
+	
+	struct particle *final = ptodas;
+	
 	for (int j = ind - 1; j >= 0; --j){
-		double dx = todas[ind].p[0] - todas[j].p[0];
-		double dy = todas[ind].p[1] - todas[j].p[1];
-		double dz = todas[ind].p[2] - todas[j].p[2];
+		--ptodas;
+		double dx = final->p[0] - ptodas->p[0];
+		double dy = final->p[1] - ptodas->p[1];
+		double dz = final->p[2] - ptodas->p[2];
 		if (dist(dx, dy, dz) <= r) {
 			//++c;
-			//printf ("%i Checando dnv\n", c);
-			todas[ind].p[0] = uniform(min, max);
-			todas[ind].p[1] = uniform(min, max);
-			todas[ind].p[2] = uniform(min, max);
-			todas[ind] = check(todas, ind, r, min, max);
+			printf ("%i Checando dnv\n", c);
+			final->p[0] = uniform(min, max);
+			final->p[1] = uniform(min, max);
+			final->p[2] = uniform(min, max);
+			*final = check(ptodas, ind, r, min, max);
 		}
 	}
 	
-	return todas[ind];
+	return *final;
 
 
 }

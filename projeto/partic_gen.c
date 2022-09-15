@@ -71,7 +71,7 @@ int main () {
 			double dx = todas[i].p[0] - todas[j].p[0];
 			double dy = todas[i].p[1] - todas[j].p[1];
 			double dz = todas[i].p[2] - todas[j].p[2];
-			if (dist(dx, dy, dz) < r){
+			if (dist(dx, dy, dz) <= 2*r){
 				printf("Se fudeu\n");
 			}
 		}
@@ -110,7 +110,7 @@ struct particle check (struct particle todas[], int ind, double r, double min, d
 		double dx = todas[ind].p[0] - todas[j].p[0];
 		double dy = todas[ind].p[1] - todas[j].p[1];
 		double dz = todas[ind].p[2] - todas[j].p[2];
-		if (dist(dx, dy, dz) <= r) {
+		if (dist(dx, dy, dz) <= 2*r) {
 			//++c;
 			//printf ("%i Checando dnv\n", c);
 			todas[ind].p[0] = uniform(min, max);

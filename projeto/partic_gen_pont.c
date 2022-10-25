@@ -2,29 +2,22 @@
 # include <stdlib.h>
 # include <time.h>
 # include <math.h>
+#include "func.h"
 
 # define PI 3.1415926
 
-// Para compilar com a lib math tenho que usar $ gcc partic_gen_pont.c -o partic_gen_pont -lm
+// Compilar $ gcc partic_gen_pont.c func.c -o partic_gen_pont -lm
 // Para abrir o Jmol e verificar $ java -jar Jmol.jar
 // O limite é 100 partículas em aresta 12
 
-struct particle {
-		double p[3];
-	};
-
 int main () {
 	srand (time(NULL));
-	
-	double uniform (double min, double max);	
-	double dist (double dx, double dy, double dz);
-	struct particle check (struct particle *ptodas, int ind, double r, double min, double max);	
-	
+
 	// Aresta da caixa
-	double l = 12;
+	double l = 7;
 	
 	// Número  e raio das partículas
-	int n = 100;
+	int n = 10;
 	double r = 1;
 	
 	double volumeparts = ((4 * PI * pow(r, 2))/3) * n;
@@ -39,9 +32,6 @@ int main () {
 	
 	// Vetor de partículas
 	struct particle todas[n];
-	/*
-	FAZ O CHECADOR DNV
-	*/
 	struct particle *ptodas = todas;
 	
 	todas[0].p[0] = uniform(min, max);
@@ -59,7 +49,10 @@ int main () {
 	}
 	
 	// Escrita do arquivo
-	FILE *ark = fopen("particulas_pont.txt", "w");
+	char titulo[25];
+	sprintf(titulo, "CI_L%.1f_R%.1f.txt", l, r);
+	
+	FILE *ark = fopen(titulo, "w");
 	fprintf (ark, "%i\n\n", n);
 	
 	for (int i = 0; i < n; ++i) {
@@ -90,54 +83,4 @@ int main () {
 	
 	return 0;
 }
-
-
-double uniform (double min, double max) {
-	/*
-	Função que gera um número aleatório em uma distribuição uniforme
-	*/
-	double random  = ((double) rand()) / RAND_MAX;
-	double range = (max - min) * random;
-	double n = range + min;	
-	
-	return n;
-}
-
-
-double dist (double dx, double dy, double dz){
-	/*
-	Calcula a distância entre duas partículas em 3D
-	*/
-	return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
-}
-
-
-struct particle check (struct particle *ptodas, int ind, double r, double min, double max) {
-	/*
-	Função recursiva que checa a distância entre a partícula gerada e o resto delas
-	*/
-	
-	struct particle *final = ptodas;
-	
-	
-	for (int j = ind - 1; j >= 0; --j){
-		--ptodas;
-		//printf ("Checando a particula %i com %i\n", ind, j);
-		double dx = final->p[0] - ptodas->p[0];
-		double dy = final->p[1] - ptodas->p[1];
-		double dz = final->p[2] - ptodas->p[2];
-		if (dist(dx, dy, dz) <= 2*r) {
-			//printf ("recriando a particula %i\n", ind);
-			final->p[0] = uniform(min, max);
-			final->p[1] = uniform(min, max);
-			final->p[2] = uniform(min, max);
-			*final = check(final, ind, r, min, max);
-		}
-	}
-	
-	return *final;
-
-
-}
-
 

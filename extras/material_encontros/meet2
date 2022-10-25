@@ -1,0 +1,20 @@
+			dx=x[i]-x[j];
+            dx=dx-round(dx/Lx)*Lx;
+            
+            dy=y[i]-y[j];
+            dy=dy-round(dy/Lx)*Lx;
+
+            dz=z[i]-z[j];
+            dz=dz-round(dz/Lx)*Lx;
+            
+            dist=sqrt(dx*dx+dy*dy+dz*dz);
+            
+            //Lennard-Jones
+            if (dist<cutwca){
+                c5=5.*( - 6./pow(dist,7) + 12./pow(dist,13));
+                if (dist<=0.8) c5=5.*( - 6./pow(0.8,7) + 12./pow(0.8,13));
+                Fx = Fx + c5*dx/dist ; F
+Alexandre P. dos Santos
+15:48
+cutwca = pow(1,1/6)
+cutwca = pow(2,1/6)

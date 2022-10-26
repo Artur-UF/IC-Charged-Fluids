@@ -18,15 +18,16 @@
 
 int main (){
 	// Lendo o arquivo e atribuindo o número de partículas
-	char titulo[25];
-	int n;
+	char titulo[25];		// Variável auxiliar para ler o .txt
+	int n;					// Número de partículas
+	
 	sprintf(titulo, "CI_L%.1f_R%.1f.txt", L, R);
 	FILE *ark = fopen(titulo, "r");
 	fscanf(ark, "%i", &n);
 	
 	// Criando o vetor de partículas
-	struct particle *todas;
-	todas = (struct particle *) malloc(n * sizeof(struct particle));
+	particle *todas;
+	todas = (particle *) malloc(n * sizeof(particle));
 	
 	// Leitura e atribuição de valores iniciais
 	char elemento[5];

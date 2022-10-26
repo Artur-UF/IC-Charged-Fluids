@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-struct particle {
+typedef struct particle {
 	// Estrutura com os atributos possíveis de uma partícula
 	double p[3];
 	double v[3];
 	double f[3];
 	double carga;
-};
+}particle;
 
 //*-*-*-*-*-*-*-*-*FUNÇÕES PARA O GERADOR DE CONCIÇÕES INICIAIS*-*-*-*-*-*-*-*-*-
 double uniform(double min, double max) {
@@ -31,12 +31,18 @@ double dist(double dx, double dy, double dz){
 }
 
 
-struct particle check(struct particle *ptodas, int ind, double r, double min, double max) {
+particle check(particle *ptodas, int ind, double r, double lx, double ly, double lz){
 	/*
 	Função recursiva que checa a distância entre a partícula gerada e o resto delas
 	*/
+	double lx_min = (-lx/2) + r;
+	double lx_max = (lx/2) - r;
+	double ly_min = (-ly/2) + r;
+	double ly_max = (ly/2) - r;
+	double lz_min = (-lz/2) + r;
+	double lz_max = (lz/2) - r;
 	
-	struct particle *final = ptodas;
+	particle *final = ptodas;
 	
 	for (int j = ind - 1; j >= 0; --j){
 		--ptodas;
@@ -46,13 +52,12 @@ struct particle check(struct particle *ptodas, int ind, double r, double min, do
 		double dz = final->p[2] - ptodas->p[2];
 		if (dist(dx, dy, dz) <= 2*r) {
 			//printf ("recriando a particula %i\n", ind);
-			final->p[0] = uniform(min, max);
-			final->p[1] = uniform(min, max);
-			final->p[2] = uniform(min, max);
-			*final = check(final, ind, r, min, max);
+			final->p[0] = uniform(lx_min, lx_max);
+			final->p[1] = uniform(ly_min, ly_max);
+			final->p[2] = uniform(lz_min, lz_max);
+			*final = check(final, ind, r, lx, ly, lz);
 		}
 	}
-	
 	return *final;
 }
 
@@ -63,16 +68,16 @@ double imin(double p1, double p2, double l){
     double dp;
     
     dp = p2 - p1;
-    dp = l/2.0 - abs(fmod(dp, l/2.0));
+    dp = dp - round(dp/l)*l;
     
     return dp;
 }
 
-void forcas(struct particle *todas, int n, double l){
+void forcas(particle *todas, int n, double l){
 	// Libera a memória depois
 	double imin(double p1, double p2, double l);
 	double cut, c5, dx, dy, dz, dist, fx, fy, fz;
-	cut = pow(2., 1./6.);
+	cut = 10.0; //pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
 	
 	// Zerando as forças antes de recalcular
 	for (int i = 0; i < n; ++i){
@@ -89,16 +94,16 @@ void forcas(struct particle *todas, int n, double l){
 				dz = imin(todas[i].p[2], todas[j].p[2], l);
 				dist = sqrt(dx*dx + dy*dy + dz*dz);
 				
-				printf("%d e %d\tDistancia; %.3lf\tcut; %.3lf\n", i, j, dist, cut);
+				printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
 				// Lennard-Jones
 				c5 = 0.0; 
 				if (dist<cut){
 					c5 = 5.*( - 6./pow(dist,7) + 12./pow(dist,13));
+					if (dist <= 0.8){
+						c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13));
+					}
 				}
-				if (dist <= 0.8){
-					c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13));
-				}
-								
+
 				// Atribuindo as componentes das forças
 				fx = c5*dx/dist;
 				fy = c5*dy/dist;
@@ -111,7 +116,6 @@ void forcas(struct particle *todas, int n, double l){
 				todas[j].f[2] += -fz;
 		}
 	}
-	
 }
 
 

@@ -5,15 +5,46 @@
 
 int main (){
 	
-	double x1, x2, y1, y2, l;
+	double x1, x2, y1, y2, l, dx1, dx2;
 	double gausran();
+	double imin1(double p1, double p2, double l);
+	double imin2(double p1, double p2, double l);
 	
-	for (int i = 0; i < 10; ++i){
-		printf("%lf\n", gausran());
-	}
 	
+	printf("x1 = ");
+	scanf("%lf", &x1);
+	printf("x2 = ");
+	scanf("%lf", &x2);
+	
+	l = 10.0;
+	dx1 = imin1(x1, x2, l);
+	dx2 = imin2(x1, x2, l);
+	printf("Distancia prof = %.2f\n", dx1);
+	printf("Distancia minha = %.2f\n", dx2);
 
 	return 0;
+}
+
+double imin1(double p1, double p2, double l){
+    // Imagem mínima
+    double dp;
+    
+    dp = p2 - p1;
+    //dp = l/2.0 - abs(fmod(dp, l/2.0));
+    dp = dp - round(dp/l)*l;
+    
+    return dp;
+}
+
+double imin2(double p1, double p2, double l){
+    // Imagem mínima
+    double dp;
+    
+    dp = p2 - p1;
+    dp = l/2.0 - abs(fmod(dp, l/2.0));
+    //dp = dp - round(dp/l)*l;
+    
+    return dp;
 }
 
 double gausran(){

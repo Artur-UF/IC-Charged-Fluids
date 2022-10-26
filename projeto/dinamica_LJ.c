@@ -1,3 +1,11 @@
+/*
+Compilar $ gcc dinamica_LJ.c func.c -o dinamica_LJ -lm
+
+Esse código é um teste para verificar se o cálculo de forças feito pela função forcas está correto
+Ele lê o arquivo .txt criado pelo gerador
+Alimente as definições com o tipo de condições iniciais utilizadas no gerador
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,21 +17,19 @@
 #define L 15.0	// Aresta da caixa
 #define R 1.0	// Raio das partículas
 
-// Compilar $ gcc dinamica_LJ.c func.c -o dinamica_LJ -lm
-
-// !?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!??!?!?!?!?!?!?!?!?!?!?!? TEM ALGUMA COISA DE ERRADA COM O CÁLCULO DA FORÇA ???
 
 int main (){
 	// Lendo o arquivo e atribuindo o número de partículas
-	char titulo[25];
-	int n;
+	char titulo[25];		// Variável auxiliar para ler o .txt
+	int n;					// Número de partículas
+	
 	sprintf(titulo, "CI_L%.1f_R%.1f.txt", L, R);
 	FILE *ark = fopen(titulo, "r");
 	fscanf(ark, "%i", &n);
 	
 	// Criando o vetor de partículas
-	struct particle *todas;
-	todas = (struct particle *) malloc(n * sizeof(struct particle));
+	particle *todas;
+	todas = (particle *) malloc(n * sizeof(particle));
 	
 	// Leitura e atribuição de valores iniciais
 	char elemento[5];
@@ -48,7 +54,7 @@ int main (){
 	
 	FILE *ark2 = fopen("forcas.txt", "w");
 	for (int i = 0; i < n; ++i){
-		fprintf(ark2, "%lf\t%lf\t%lf\n", todas[i].f[0], todas[i].f[1], todas[i].f[2]);
+		fprintf(ark2, "%-3d %lf\t%lf\t%lf\n", i+1, todas[i].f[0], todas[i].f[1], todas[i].f[2]);
 	}
 	
 	fclose(ark);

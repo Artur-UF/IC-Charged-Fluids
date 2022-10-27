@@ -8,6 +8,7 @@ typedef struct particle {
 	double v[3];
 	double f[3];
 	double carga;
+	double gaussian[3]; // Atributo para ajudar na integração
 }particle;
 
 //*-*-*-*-*-*-*-*-*FUNÇÕES PARA O GERADOR DE CONCIÇÕES INICIAIS*-*-*-*-*-*-*-*-*-
@@ -73,7 +74,7 @@ double imin(double p1, double p2, double l){
     return dp;
 }
 
-void forcas(particle *todas, int n, double l){
+void forcas(particle *todas, int n, double lx, double ly, double lz){
 	// Libera a memória depois
 	double imin(double p1, double p2, double l);
 	double cut, c5, dx, dy, dz, dist, fx, fy, fz;
@@ -89,9 +90,9 @@ void forcas(particle *todas, int n, double l){
 	// ACHO QUE O ERRO ESTÁ AQUI
 	for (int i = 0; i < n; ++i){
 		for (int j = i + 1; j < n; ++j){
-				dx = imin(todas[i].p[0], todas[j].p[0], l);
-				dy = imin(todas[i].p[1], todas[j].p[1], l);
-				dz = imin(todas[i].p[2], todas[j].p[2], l);
+				dx = imin(todas[i].p[0], todas[j].p[0], lx);
+				dy = imin(todas[i].p[1], todas[j].p[1], ly);
+				dz = imin(todas[i].p[2], todas[j].p[2], lz);
 				dist = sqrt(dx*dx + dy*dy + dz*dz);
 				
 				printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
@@ -132,6 +133,5 @@ double gausran(){
     res  = R1*cos(R2);
     return res;
 }
-
 
 

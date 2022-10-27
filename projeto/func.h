@@ -4,6 +4,7 @@ typedef struct particle{
 	double v[3];
 	double f[3];
 	double carga;
+	double gaussian[[3]; // Atributo para ajudar na integração
 }particle;
 
 // Gerador

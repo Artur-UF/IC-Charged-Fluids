@@ -50,7 +50,7 @@ int main (){
 	}
 	
 	// Escrevendo o arquivo com as forças iniciais
-	forcas(todas, n, L);
+	forcas(todas, n, L, L, L);
 	
 	FILE *ark2 = fopen("forcas.txt", "w");
 	for (int i = 0; i < n; ++i){

@@ -14,7 +14,7 @@ Alimente as definições com o tipo de condições iniciais utilizadas no gerado
 
 #define NA 1.0	// Carga do Sódio
 #define CL -1.0	// Carga do Cloro
-#define L 15.0	// Aresta da caixa
+#define L 7.0	// Aresta da caixa
 #define R 1.0	// Raio das partículas
 
 

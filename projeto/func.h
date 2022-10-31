@@ -4,7 +4,7 @@ typedef struct particle{
 	double v[3];
 	double f[3];
 	double carga;
-	double gaussian[[3]; // Atributo para ajudar na integração
+	double gaussian[3]; // Atributo para ajudar na integração
 }particle;
 
 // Gerador
@@ -13,5 +13,5 @@ double dist(double dx, double dy, double dz);
 particle check(particle *ptodas, int ind, double r, double lx, double ly, double lz);	
 // Dinâmica
 double imin(double p1, double p2, double l);
-void forcas(particle *todas, int n, double l);
+void forcas(particle *todas, int n, double lx, double ly, double lz);
 double gausran();

@@ -95,7 +95,7 @@ void forcas(particle *todas, int n, double lx, double ly, double lz){
 				dz = imin(todas[i].p[2], todas[j].p[2], lz);
 				dist = sqrt(dx*dx + dy*dy + dz*dz);
 				
-				printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
+				//printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
 				// Lennard-Jones
 				c5 = 0.0; 
 				if (dist<cut){

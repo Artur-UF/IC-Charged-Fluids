@@ -74,11 +74,12 @@ double imin(double p1, double p2, double l){
     return dp;
 }
 
+
 void forcas(particle *todas, int n, double lx, double ly, double lz){
 	// Libera a memória depois
 	double imin(double p1, double p2, double l);
 	double cut, c5, dx, dy, dz, dist, fx, fy, fz;
-	cut = 10.0; //pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
+	cut = pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
 	
 	// Zerando as forças antes de recalcular
 	for (int i = 0; i < n; ++i){
@@ -119,7 +120,6 @@ void forcas(particle *todas, int n, double lx, double ly, double lz){
 	}
 }
 
-
 double gausran(){
     // generate gaussianrandom_numbers                                                                   
     int g;
@@ -134,4 +134,56 @@ double gausran(){
     return res;
 }
 
+/* TENTATIVA DE COPIAR A FUNÇÃO EM PYTHON
+double aij(double r, double eps, double sig){
+	return 48 * (eps / (sig*sig)) * (pow((sig / r), 14) - (0.5 * pow((sig / r), 8)));
+}
 
+void forcas(particle *todas, int n, double lx, double ly, double lz){
+	// Libera a memória depois
+	double imin(double p1, double p2, double l);
+	double cut, dx, dy, dz, dist, fx, fy, fz, eps, sig, c5, r;
+	cut = 2.5;
+	eps = 1;
+	sig = 1;
+	r = 1;
+	
+	// Zerando as forças antes de recalcular
+	for (int i = 0; i < n; ++i){
+		todas[i].f[0] = 0.0;
+		todas[i].f[1] = 0.0;
+		todas[i].f[2] = 0.0;
+	}
+	
+	// ACHO QUE O ERRO ESTÁ AQUI
+	for (int i = 0; i < n; ++i){
+		for (int j = i + 1; j < n; ++j){
+				dx = imin(todas[i].p[0], todas[j].p[0], lx);
+				dy = imin(todas[i].p[1], todas[j].p[1], ly);
+				dz = imin(todas[i].p[2], todas[j].p[2], lz);
+				dist = sqrt(dx*dx + dy*dy + dz*dz);
+				
+				//printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
+				// Lennard-Jones
+				c5 = 0.0; 
+				if (dist<cut){
+					c5 = aij(dist, eps, sig);
+					if (dist <= 0.8){
+						c5 = aij(0.8, eps, sig);
+					}
+				}
+
+				// Atribuindo as componentes das forças
+				fx = c5*dx;
+				fy = c5*dy;
+				fz = c5*dz;
+				todas[i].f[0] += fx;
+				todas[j].f[0] += -fx;
+				todas[i].f[1] += fy;
+				todas[j].f[1] += -fy;
+				todas[i].f[2] += fz;
+				todas[j].f[2] += -fz;
+		}
+	}
+}
+*/

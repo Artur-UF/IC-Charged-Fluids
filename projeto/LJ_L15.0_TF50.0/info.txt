@@ -1,0 +1,8 @@
+N = 100
+R = 1.00
+L = 15.0
+DT = 0.005000
+TF = 50.00
+FRIC = 0.10
+Passos = 10000
+Tempo de execução = 6.940452s

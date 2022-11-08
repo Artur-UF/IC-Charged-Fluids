@@ -106,15 +106,17 @@ void forcas(particle *todas, int n, double lx, double ly, double lz){
 					}
 				}
 
-				// Atribuindo as componentes das forças
-				fx = c5*dx/dist;
-				fy = c5*dy/dist;
-				fz = c5*dz/dist;
+				// Atribuindo as componentes das forças (botei o sinal na frente pra corrigir)
+				fx = -c5*dx/dist;
+				fy = -c5*dy/dist;
+				fz = -c5*dz/dist;
+				// Particula i:
 				todas[i].f[0] += fx;
-				todas[j].f[0] += -fx;
 				todas[i].f[1] += fy;
-				todas[j].f[1] += -fy;
 				todas[i].f[2] += fz;
+				// Partícula j:				
+				todas[j].f[0] += -fx;
+				todas[j].f[1] += -fy;
 				todas[j].f[2] += -fz;
 		}
 	}
@@ -133,8 +135,55 @@ double gausran(){
     res  = R1*cos(R2);
     return res;
 }
+/* 
+void integrador(particle *todas, double con, double c0, double c1, double c2, double desv_r, double desv_v, double cvv, double cvv2, double dt2){
+	// Cálculo inicial das forças
+	forcas(todas, n, lx, ly, lz);
+	
+	// Loop do espaço sobre todas as partículas
+	for (int j = 0; j < n; ++j){
+		xold = todas[j].p[0];
+		yold = todas[j].p[1];
+		zold = todas[j].p[2];
+		todas[j].gaussian[0] = gausran();
+		todas[j].gaussian[1] = gausran();
+		todas[j].gaussian[2] = gausran();
+		
+		// Passo no espaço
+		todas[j].p[0] += c1 * DT * todas[j].v[0] + c2 * dt2 * todas[j].f[0] + todas[j].gaussian[0] * desv_r;
+		todas[j].p[1] += c1 * DT * todas[j].v[1] + c2 * dt2 * todas[j].f[1] + todas[j].gaussian[1] * desv_r;
+		todas[j].p[2] += c1 * DT * todas[j].v[2] + c2 * dt2 * todas[j].f[2] + todas[j].gaussian[2] * desv_r;
+		
+		// PBC
+		if (fabs(todas[j].p[0]) > lx/2.){
+			todas[j].p[0] = lx * (fabs(todas[j].p[0])/todas[j].p[0]);
+		}
+		if (fabs(todas[j].p[1]) > ly/2.){
+			todas[j].p[1] = ly * (fabs(todas[j].p[1])/todas[j].p[1]);
+		}
+		if (fabs(todas[j].p[2]) > lz/2.){
+			todas[j].p[2] = lz * (fabs(todas[j].p[2])/todas[j].p[2]);
+		}
+	}
+	// Cálculo final das forças
+	forcas(todas, n, lx, ly, lz);
+	
+	// Loop da velocidade sobre todas partículas
+	for (int j = 0; j < n; ++j){
+		// Vx
+		todas[j].v[0] = c0 * todas[j].v[0] + (c1 - c2) * DT * todas[j].f[0] + 
+		c2 * DT * todas[j].f[0] + desv_v * (cvv * todas[j].gaussian[0] + cvv2 * gausran());
+		// Vy
+		todas[j].v[1] = c0 * todas[j].v[1] + (c1 - c2) * DT * todas[j].f[1] + 
+		c2 * DT * todas[j].f[1] + desv_v * (cvv * todas[j].gaussian[1] + cvv2 * gausran());
+		// Vz
+		todas[j].v[2] = c0 * todas[j].v[2] + (c1 - c2) * DT * todas[j].f[2] + 
+		c2 * DT * todas[j].f[2] + desv_v * (cvv * todas[j].gaussian[2] + cvv2 * gausran());
+	}
+}
 
-/* TENTATIVA DE COPIAR A FUNÇÃO EM PYTHON
+
+TENTATIVA DE COPIAR A FUNÇÃO EM PYTHON
 double aij(double r, double eps, double sig){
 	return 48 * (eps / (sig*sig)) * (pow((sig / r), 14) - (0.5 * pow((sig / r), 8)));
 }

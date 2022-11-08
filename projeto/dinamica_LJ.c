@@ -79,7 +79,7 @@ int main (){
 	sprintf(arkinfo, "LJ_L%.1lf_TF%.1lf/info.txt", L, TF);
 	FILE *infos = fopen(arkinfo, "w");
 	
-	//Loop Temporal
+		//Loop Temporal
 	double con, c0, c1, c2, desv_r, desv_v, cvv, cvv2, dt2, xold, yold, zold;
 	con = FRIC*DT;
 	c0 = exp(-con);
@@ -126,13 +126,13 @@ int main (){
 		
 		// Loop da velocidade sobre todas partículas
 		for (int j = 0; j < n; ++j){
-			// vx
+			// Vx
 			todas[j].v[0] = c0 * todas[j].v[0] + (c1 - c2) * DT * todas[j].f[0] + 
 			c2 * DT * todas[j].f[0] + desv_v * (cvv * todas[j].gaussian[0] + cvv2 * gausran());
-			// vy
+			// Vy
 			todas[j].v[1] = c0 * todas[j].v[1] + (c1 - c2) * DT * todas[j].f[1] + 
 			c2 * DT * todas[j].f[1] + desv_v * (cvv * todas[j].gaussian[1] + cvv2 * gausran());
-			// vz
+			// Vz
 			todas[j].v[2] = c0 * todas[j].v[2] + (c1 - c2) * DT * todas[j].f[2] + 
 			c2 * DT * todas[j].f[2] + desv_v * (cvv * todas[j].gaussian[2] + cvv2 * gausran());
 		}

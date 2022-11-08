@@ -5,4 +5,4 @@ DT = 0.005000
 TF = 10.00
 FRIC = 0.10
 Passos = 2000
-Tempo de execução = 1.453715s
+Tempo de execução = 1.338818s

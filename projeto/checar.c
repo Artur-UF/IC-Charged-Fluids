@@ -28,27 +28,39 @@ int main(){
 	
 	char titulo[30];
 	
-	for (int count = 0; count < TF/DT; count += CHECKPOINT){
+	for (int count = 0; count < TF/DT; count += CHECKPOINT){ //<<<<<<<<<<<<<<<<<<<<VÊ SE NINGUEM TÁ SAINDO DA CAIXA E TESTA MAIS VEZES!!!!
 		sprintf(titulo, "LJ_L%.1lf_TF%.1lf/%d.bin", L, TF, count);
 		FILE *ark = fopen(titulo, "rb");
 		
 		fread(todas, sizeof(particle), n, ark);
+		printf("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-Passo = %-2d\n", count);	
 		
-		// Checando MAIS UMA VEZ se nenhuma se sobrepôs
-		double dx, dy, dz, dtotal;
+		double dx, dy, dz, dtotal, x, y, z;
 		for (int i = 0; i < n; ++i) {
-			//printf("%d\t%.2lf\t%.2lf\t%.2lf\n", i, todas[i].p[0], todas[i].p[1], todas[i].p[2]);
+			x = todas[i].p[0];
+			y = todas[i].p[1];
+			z = todas[i].p[2];
+			
+			if (fabs(x) > L/2.){
+				printf("Partícula %-2d está em x = %.3lf\n", i, x);
+			}
+			if (fabs(y) > L/2.){
+				printf("Partícula %-2d está em y = %.3lf\n", i, y);
+			}
+			if (fabs(z) > L/2.){
+				printf("Partícula %-2d está em z = %.3lf\n", i, z);
+			}
 			for (int j = i+1; j < n; ++j) {
 				dx = todas[i].p[0] - todas[j].p[0];
 				dy = todas[i].p[1] - todas[j].p[1];
 				dz = todas[i].p[2] - todas[j].p[2];
 				dtotal = dist(dx, dy, dz);
-				if (dtotal <= 2 * R){
-					printf("Passo = %-2d\tAproximação (%-2d e %-2d)\tDistancia = %.3lf\n", count, i, j, dtotal);
+				if (dtotal <= R){
+					printf("Aproximação (%-2d e %-2d)\tDistancia = %.3lf\n", i, j, dtotal);
 				}
 			}
 		}
-		printf("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n");		
+			
 		fclose(ark);
 	}
 

@@ -1,7 +1,8 @@
 /*
 Compilar: $ gcc checar.c func.c -o checar -lm
 
-Código criado para checar se a dinâmica não está fazendo partículas colidirem
+Código que verifica se as partículas colidem ou saem da caixa.
+Ele abre a pasta gerada pelo dinamica_LJ.c referente aos parâmetros definidos em #define
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +29,8 @@ int main(){
 	
 	char titulo[30];
 	
-	for (int count = 0; count < TF/DT; count += CHECKPOINT){ //<<<<<<<<<<<<<<<<<<<<VÊ SE NINGUEM TÁ SAINDO DA CAIXA E TESTA MAIS VEZES!!!!
+	for (int count = 0; count < TF/DT; count += CHECKPOINT){ 
+		// Abre o arquivo de cada passo temporal
 		sprintf(titulo, "LJ_L%.1lf_TF%.1lf/%d.bin", L, TF, count);
 		FILE *ark = fopen(titulo, "rb");
 		
@@ -37,25 +39,28 @@ int main(){
 		
 		double dx, dy, dz, dtotal, x, y, z;
 		for (int i = 0; i < n; ++i) {
+			// Verifica se alguma sai da caixa			
 			x = todas[i].p[0];
 			y = todas[i].p[1];
 			z = todas[i].p[2];
 			
-			if (fabs(x) > L/2.){
+			if (fabs(x) >= L/2.){
 				printf("Partícula %-2d está em x = %.3lf\n", i, x);
 			}
-			if (fabs(y) > L/2.){
+			if (fabs(y) >= L/2.){
 				printf("Partícula %-2d está em y = %.3lf\n", i, y);
 			}
-			if (fabs(z) > L/2.){
+			if (fabs(z) >= L/2.){
 				printf("Partícula %-2d está em z = %.3lf\n", i, z);
 			}
+
+			// Verifica alguma aproximação
 			for (int j = i+1; j < n; ++j) {
 				dx = todas[i].p[0] - todas[j].p[0];
 				dy = todas[i].p[1] - todas[j].p[1];
 				dz = todas[i].p[2] - todas[j].p[2];
 				dtotal = dist(dx, dy, dz);
-				if (dtotal <= R){
+				if (dtotal <= R){ // Distancia que eu quero verificar
 					printf("Aproximação (%-2d e %-2d)\tDistancia = %.3lf\n", i, j, dtotal);
 				}
 			}

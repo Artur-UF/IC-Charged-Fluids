@@ -79,7 +79,7 @@ int main (){
 	sprintf(arkinfo, "LJ_L%.1lf_TF%.1lf/info.txt", L, TF);
 	FILE *infos = fopen(arkinfo, "w");
 	
-		//Loop Temporal
+	//Loop Temporal
 	double con, c0, c1, c2, desv_r, desv_v, cvv, cvv2, dt2, xold, yold, zold;
 	con = FRIC*DT;
 	c0 = exp(-con);
@@ -112,13 +112,13 @@ int main (){
 			
 			// PBC
 			if (fabs(todas[j].p[0]) > lx/2.){
-				todas[j].p[0] = lx * (fabs(todas[j].p[0])/todas[j].p[0]);
+				todas[j].p[0] -= lx * (fabs(todas[j].p[0])/todas[j].p[0]);
 			}
 			if (fabs(todas[j].p[1]) > ly/2.){
-				todas[j].p[1] = ly * (fabs(todas[j].p[1])/todas[j].p[1]);
+				todas[j].p[1] -= ly * (fabs(todas[j].p[1])/todas[j].p[1]);
 			}
 			if (fabs(todas[j].p[2]) > lz/2.){
-				todas[j].p[2] = lz * (fabs(todas[j].p[2])/todas[j].p[2]);
+				todas[j].p[2] -= lz * (fabs(todas[j].p[2])/todas[j].p[2]);
 			}
 		}
 		// Cálculo final das forças

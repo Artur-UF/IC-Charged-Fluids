@@ -24,16 +24,16 @@ double imin(double p1, double p2, double l){
 
 int main (){
 	
-	double x1, x2;
+	double x1, x2, l;
+	
+	l = 10;
 	
 	printf("x1 = ");
 	scanf("%lf", &x1);	
 	
-	printf("x2 = ");
-	scanf("%lf", &x2);
-	
-	printf("imin(%.1lf, %.1lf) = %.1lf\n", x1, x2, imin(x1, x2, 10.));
-	printf("imin(%.1lf, %.1lf) = %.1lf\n", x2, x1, imin(x2, x1, 10.));
+	x1 = l * fabs(x1)/x1;
+
+	printf("x1 = %.2lf\n	", x1);	
 		
 	return 0;
 }

@@ -1,0 +1,125 @@
+numero de vetores:
+
+///KVEC INIT!!!
+void kvectors(double Lx , double Ly , double Lz , int *pnum_k)
+{
+
+int nx,ny,nz,kcont=0;
+double kra,pi=acos(-1.);
+double kr2=4.*pi*pi*16./Lx/Lx;
+
+for (nx=-4;nx<=4;nx++){
+     for (ny=-4;ny<=4;ny++){
+         for (nz=-4*(int)(Lz/Lx);nz<=4*(int)(Lz/Lx);nz++){
+
+             if (nx==0&ny==0&nz==0){
+                 goto se ;
+             }
+
+             kra=4.*pi*pi*(nx*nx/Lx/Lx + ny*ny/Ly/Ly + nz*nz/Lz/Lz) ;
+
+             if (kra<=kr2) {
+                 kcont +=1;
+             }
+
+se:  continue ;
+
+         }
+     }
+}
+
+*pnum_k=kcont;
+
+}
+
+
+
+construir os vetores:
+
+int num_k,nx,ny,nz,kk;
+kvectors(Lx , Ly , Lz , &num_k); num_k=num_k/2;
+double kvec[3][num_k];
+double kra,kr2=4.*pi*pi*16./Lx/Lx;
+
+
+int kcont=0;
+for (nx=-4;nx<=4;nx++){
+     for (ny=-4;ny<=4;ny++){
+         for (nz=-4;nz<=4;nz++){
+
+             if (nx==0&ny==0&nz==0){
+                 goto se2 ;
+             }
+
+             kra=4.*pi*pi*(nx*nx/Lx/Lx + ny*ny/Ly/Ly + nz*nz/Lz/Lz) ;
+
+             if (kra<=kr2) {
+
+                  for (kk=0;kk<kcont;kk++){
+                      if(kvec[0][kk]==-2.*pi*nx/Lx & kvec[1][kk]==-2.*pi*ny/Ly & kvec[2][kk]==-2.*pi*nz/Lz)
+						 goto se2 ;
+                  }
+
+                 kvec[0][kcont]=2.*pi*nx/Lx ;
+                 kvec[1][kcont]=2.*pi*ny/Ly ;
+                 kvec[2][kcont]=2.*pi*nz/Lz ;
+
+                 kcont +=1;
+
+             }
+
+se2:  continue ;
+
+         }
+     }
+}
+
+
+double ka = 5./Lx ;
+double XA2 = 2.*pi/(Lx*Ly*Lz) ;
+
+for (k=0;k<num_k;k++){
+
+     for (i=0;i<N;i++){
+
+         A[k] = A[k] + ch[i]*cos(kvec[0][k]*x[i] + kvec[1][k]*y[i] +
+kvec[2][k]*z[i]) ;
+         B[k] = B[k] - ch[i]*sin(kvec[0][k]*x[i] + kvec[1][k]*y[i] +
+kvec[2][k]*z[i]) ;
+
+     }
+
+         kq = kvec[0][k]*kvec[0][k] + kvec[1][k]*kvec[1][k] +
+kvec[2][k]*kvec[2][k] ;
+         pre_k[k] = 4.*XA2/kq*exp(-kq/4./ka/ka) ;
+
+}
+
+
+
+
+SHORT RANGE NA PARTICULA i
+
+double rcerf=Lx/2.;
+double kapi = 2.*ka/sqrt(pi) ;
+double sep=raio1+raio2;
+
+             if (dist<rcerf&&dist>0.8*sep){
+                 c1=ch[i]*ch[j]*(erfc(ka*dist)/dist/dist/dist +
+						kapi*exp(-ka*ka*dist*dist)/dist/dist) ;
+                 Fx = Fx + c1*dx ; Fy = Fy + c1*dy ; Fz = Fz + c1*dz ;
+             }
+
+
+LONG RANGE PARA PARTICULA DE CARGA ch1
+
+         for (k=0;k<num_k;k++){
+
+         aux=ch1*pre_k[k]*(A[k]*sin(kvec[0][k]*x1+kvec[1][k]*y1+kvec[2][k]*z1)+
+         		B[k]*cos(kvec[0][k]*x1+kvec[1][k]*y1+kvec[2][k]*z1) ) ;
+
+         Fx = Fx + kvec[0][k]*aux ; Fy = Fy + kvec[1][k]*aux ; Fz = Fz +
+				kvec[2][k]*aux ;
+
+         }
+

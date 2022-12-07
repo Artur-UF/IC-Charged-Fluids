@@ -24,7 +24,7 @@ salva 500 e faz o video
 #define R 1.			// Raio das partículas
 #define DT 0.005		// Delta de tempo
 #define FRIC 0.1		// Coeficiente de Fricção
-#define TF 53.			// Tempo final
+#define TF 53.01		// Tempo final
 #define CHECKPOINT 10.	// Número de passos pulados
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 

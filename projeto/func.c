@@ -1,15 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-typedef struct particle {
-	// Estrutura com os atributos possíveis de uma partícula
-	double p[3];
-	double v[3];
-	double f[3];
-	double carga;
-	double gaussian[3]; // Atributo para ajudar na integração
-}particle;
+#include "func.h"
 
 //*-*-*-*-*-*-*-*-*FUNÇÕES PARA O GERADOR DE CONCIÇÕES INICIAIS*-*-*-*-*-*-*-*-*-
 double uniform(double min, double max) {
@@ -76,7 +68,6 @@ double imin(double p1, double p2, double l){
 
 
 void forcas(particle *todas, int n, double lx, double ly, double lz){
-	// Libera a memória depois
 	double imin(double p1, double p2, double l);
 	double cut, c5, dx, dy, dz, dist, fx, fy, fz;
 	cut = pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
@@ -136,23 +127,20 @@ double gausran(){
     return res;
 }
 /* 
-void integrador(particle *todas, double con, double c0, double c1, double c2, double desv_r, double desv_v, double cvv, double cvv2, double dt2){
+void integrador(particle *todas, double *c, int n, double lx, double ly, double lz){
 	// Cálculo inicial das forças
 	forcas(todas, n, lx, ly, lz);
 	
 	// Loop do espaço sobre todas as partículas
 	for (int j = 0; j < n; ++j){
-		xold = todas[j].p[0];
-		yold = todas[j].p[1];
-		zold = todas[j].p[2];
 		todas[j].gaussian[0] = gausran();
 		todas[j].gaussian[1] = gausran();
 		todas[j].gaussian[2] = gausran();
 		
 		// Passo no espaço
-		todas[j].p[0] += c1 * DT * todas[j].v[0] + c2 * dt2 * todas[j].f[0] + todas[j].gaussian[0] * desv_r;
-		todas[j].p[1] += c1 * DT * todas[j].v[1] + c2 * dt2 * todas[j].f[1] + todas[j].gaussian[1] * desv_r;
-		todas[j].p[2] += c1 * DT * todas[j].v[2] + c2 * dt2 * todas[j].f[2] + todas[j].gaussian[2] * desv_r;
+		todas[j].p[0] += c[1] * c[8] * todas[j].v[0] + c[2] * c[7] * todas[j].f[0] + todas[j].gaussian[0] * c[3];
+		todas[j].p[1] += c[1] * c[8] * todas[j].v[1] + c[2] * c[7] * todas[j].f[1] + todas[j].gaussian[1] * c[3];
+		todas[j].p[2] += c[1] * c[8] * todas[j].v[2] + c[2] * c[7] * todas[j].f[2] + todas[j].gaussian[2] * c[3];
 		
 		// PBC
 		if (fabs(todas[j].p[0]) > lx/2.){
@@ -171,14 +159,14 @@ void integrador(particle *todas, double con, double c0, double c1, double c2, do
 	// Loop da velocidade sobre todas partículas
 	for (int j = 0; j < n; ++j){
 		// Vx
-		todas[j].v[0] = c0 * todas[j].v[0] + (c1 - c2) * DT * todas[j].f[0] + 
-		c2 * DT * todas[j].f[0] + desv_v * (cvv * todas[j].gaussian[0] + cvv2 * gausran());
+		todas[j].v[0] = c[0] * todas[j].v[0] + (c[1] - c[2]) * c[8] * todas[j].f[0] + 
+		c[2] * c[8] * todas[j].f[0] + c[4] * (c[5] * todas[j].gaussian[0] + c[6] * gausran());
 		// Vy
-		todas[j].v[1] = c0 * todas[j].v[1] + (c1 - c2) * DT * todas[j].f[1] + 
-		c2 * DT * todas[j].f[1] + desv_v * (cvv * todas[j].gaussian[1] + cvv2 * gausran());
+		todas[j].v[1] = c[0] * todas[j].v[1] + (c[1] - c[2]) * c[8] * todas[j].f[1] + 
+		c[2] * c[8] * todas[j].f[1] + c[4] * (c[5] * todas[j].gaussian[1] + c[6] * gausran());
 		// Vz
-		todas[j].v[2] = c0 * todas[j].v[2] + (c1 - c2) * DT * todas[j].f[2] + 
-		c2 * DT * todas[j].f[2] + desv_v * (cvv * todas[j].gaussian[2] + cvv2 * gausran());
+		todas[j].v[2] = c[0] * todas[j].v[2] + (c[1] - c[2]) * c[8] * todas[j].f[2] + 
+		c[2] * c[8] * todas[j].f[2] + c[4] * (c[5] * todas[j].gaussian[2] + c[6] * gausran());
 	}
 }
 

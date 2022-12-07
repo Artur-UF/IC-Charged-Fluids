@@ -2,8 +2,8 @@ N = 100
 R = 1.00
 L = 15.0
 DT = 0.005000
-TF = 53.00
+TF = 53.01
 FRIC = 0.10
 Passos = 500
-Tempo de execução = 7.452657s
+Tempo de execução = 7.607843s
 10000 passos até o equilíbrio.

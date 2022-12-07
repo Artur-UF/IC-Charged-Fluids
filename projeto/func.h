@@ -1,4 +1,4 @@
-typedef struct particle{
+typedef struct {
 	// Estrutura com os atributos possíveis de uma partícula
 	double p[3];
 	double v[3];

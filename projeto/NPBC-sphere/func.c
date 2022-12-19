@@ -1,0 +1,240 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "func.h"
+
+//*-*-*-*-*-*-*-*-*FUNÇÕES PARA O GERADOR DE CONCIÇÕES INICIAIS*-*-*-*-*-*-*-*-*-
+double uniform(double min, double max) {
+	/*
+	Função que gera um número aleatório em uma distribuição uniforme
+	*/
+	double random  = ((double) rand()) / RAND_MAX;
+	double range = (max - min) * random;
+	double n = range + min;	
+	
+	return n;
+}
+
+
+double dist(double dx, double dy, double dz){
+	/*
+	Calcula a distância entre duas partículas em 3D
+	*/
+	return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
+}
+
+
+void check(particle *todas, int i, double rs, double r){
+	/*
+	Função recursiva que checa a distância entre a partícula gerada e o resto delas
+	*/
+	double x = todas[i].p[0], y = todas[i].p[1], z = todas[i].p[2];
+	double rrs = rs - r/2.;
+	
+	for (int j = i - 1; j >= 0; --j){
+		double dx = x - todas[j].p[0];
+		double dy = y - todas[j].p[1];
+		double dz = z - todas[j].p[2];
+		double dpart = dist(dx, dy, dz);
+		double dcentro = dist(x, y, z);
+		if (dpart <= 2.*r || dcentro >= rrs) { //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<ESSA PORRA TA EXPLODINDO
+			todas[i].p[0] = uniform(-rrs, rrs);
+			todas[i].p[1] = uniform(-rrs, rrs);
+			todas[i].p[2] = uniform(-rrs, rrs);
+			printf("--------------------------------------------\n");
+			printf("Distância entre (%d, %d): %lf\n", i, j, dpart);
+			printf("Distância do centro: %lf\n", dcentro);
+			check(todas, i, rs, r);
+			//printf("Gerei dnv a %d\n", i);
+		}
+	}
+}
+
+void gerador(particle *todas, int n, double rs, double r){
+	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+	
+	todas[0].p[0] = uniform(-rrs, rrs);
+	todas[0].p[1] = uniform(-rrs, rrs);
+	todas[0].p[2] = uniform(-rrs, rrs);
+	
+	for (int i = 1; i < n; ++i){
+		todas[i].p[0] = uniform(-rrs, rrs);
+		todas[i].p[0] = uniform(-rrs, rrs);
+		todas[i].p[0] = uniform(-rrs, rrs);
+		check(todas, i, rs, r);
+		printf("Gerei a %d\n", i);
+	}
+}
+
+
+
+
+//-*-*-*-*-*-*-*-*-*-*-FUNÇÕES PARA A DINÂMICA*-*-*-*-*-*-*-*-*-*-*-*-*-
+double imin(double p1, double p2, double l){
+    // Imagem mínima
+    double dp;
+    
+    dp = p2 - p1;
+    dp = dp - round(dp/l)*l;
+    
+    return dp;
+}
+
+
+void forcas(particle *todas, int n, double lx, double ly, double lz){
+	double imin(double p1, double p2, double l);
+	double cut, c5, dx, dy, dz, dist, fx, fy, fz;
+	cut = pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
+	
+	// Zerando as forças antes de recalcular
+	for (int i = 0; i < n; ++i){
+		todas[i].f[0] = 0.0;
+		todas[i].f[1] = 0.0;
+		todas[i].f[2] = 0.0;
+	}
+	
+	// ACHO QUE O ERRO ESTÁ AQUI
+	for (int i = 0; i < n; ++i){
+		for (int j = i + 1; j < n; ++j){
+				dx = imin(todas[i].p[0], todas[j].p[0], lx);
+				dy = imin(todas[i].p[1], todas[j].p[1], ly);
+				dz = imin(todas[i].p[2], todas[j].p[2], lz);
+				dist = sqrt(dx*dx + dy*dy + dz*dz);
+				
+				//printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
+				// Lennard-Jones
+				c5 = 0.0; 
+				if (dist<cut){
+					c5 = 5.*( - 6./pow(dist,7) + 12./pow(dist,13));
+					if (dist <= 0.8){
+						c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13));
+					}
+				}
+
+				// Atribuindo as componentes das forças (botei o sinal na frente pra corrigir)
+				fx = -c5*dx/dist;
+				fy = -c5*dy/dist;
+				fz = -c5*dz/dist;
+				// Particula i:
+				todas[i].f[0] += fx;
+				todas[i].f[1] += fy;
+				todas[i].f[2] += fz;
+				// Partícula j:				
+				todas[j].f[0] += -fx;
+				todas[j].f[1] += -fy;
+				todas[j].f[2] += -fz;
+		}
+	}
+}
+
+double gausran(){
+    // generate gaussianrandom_numbers                                                                   
+    int g;
+    double ran1,ran2,PI,R1,R2,res;
+    ran1 = (double)rand()/RAND_MAX;
+    ran2 = (double)rand()/RAND_MAX;
+    PI   = 4.0*atan(1.0);
+    R1   = -log(1.0-ran1);
+    R2   = 2.0*PI*ran2;
+    R1   = sqrt(2.0*R1);
+    res  = R1*cos(R2);
+    return res;
+}
+/* 
+void integrador(particle *todas, double *c, int n, double lx, double ly, double lz){
+	// Cálculo inicial das forças
+	forcas(todas, n, lx, ly, lz);
+	
+	// Loop do espaço sobre todas as partículas
+	for (int j = 0; j < n; ++j){
+		todas[j].gaussian[0] = gausran();
+		todas[j].gaussian[1] = gausran();
+		todas[j].gaussian[2] = gausran();
+		
+		// Passo no espaço
+		todas[j].p[0] += c[1] * c[8] * todas[j].v[0] + c[2] * c[7] * todas[j].f[0] + todas[j].gaussian[0] * c[3];
+		todas[j].p[1] += c[1] * c[8] * todas[j].v[1] + c[2] * c[7] * todas[j].f[1] + todas[j].gaussian[1] * c[3];
+		todas[j].p[2] += c[1] * c[8] * todas[j].v[2] + c[2] * c[7] * todas[j].f[2] + todas[j].gaussian[2] * c[3];
+		
+		// PBC
+		if (fabs(todas[j].p[0]) > lx/2.){
+			todas[j].p[0] = lx * (fabs(todas[j].p[0])/todas[j].p[0]);
+		}
+		if (fabs(todas[j].p[1]) > ly/2.){
+			todas[j].p[1] = ly * (fabs(todas[j].p[1])/todas[j].p[1]);
+		}
+		if (fabs(todas[j].p[2]) > lz/2.){
+			todas[j].p[2] = lz * (fabs(todas[j].p[2])/todas[j].p[2]);
+		}
+	}
+	// Cálculo final das forças
+	forcas(todas, n, lx, ly, lz);
+	
+	// Loop da velocidade sobre todas partículas
+	for (int j = 0; j < n; ++j){
+		// Vx
+		todas[j].v[0] = c[0] * todas[j].v[0] + (c[1] - c[2]) * c[8] * todas[j].f[0] + 
+		c[2] * c[8] * todas[j].f[0] + c[4] * (c[5] * todas[j].gaussian[0] + c[6] * gausran());
+		// Vy
+		todas[j].v[1] = c[0] * todas[j].v[1] + (c[1] - c[2]) * c[8] * todas[j].f[1] + 
+		c[2] * c[8] * todas[j].f[1] + c[4] * (c[5] * todas[j].gaussian[1] + c[6] * gausran());
+		// Vz
+		todas[j].v[2] = c[0] * todas[j].v[2] + (c[1] - c[2]) * c[8] * todas[j].f[2] + 
+		c[2] * c[8] * todas[j].f[2] + c[4] * (c[5] * todas[j].gaussian[2] + c[6] * gausran());
+	}
+}
+
+
+TENTATIVA DE COPIAR A FUNÇÃO EM PYTHON
+double aij(double r, double eps, double sig){
+	return 48 * (eps / (sig*sig)) * (pow((sig / r), 14) - (0.5 * pow((sig / r), 8)));
+}
+
+void forcas(particle *todas, int n, double lx, double ly, double lz){
+	// Libera a memória depois
+	double imin(double p1, double p2, double l);
+	double cut, dx, dy, dz, dist, fx, fy, fz, eps, sig, c5, r;
+	cut = 2.5;
+	eps = 1;
+	sig = 1;
+	r = 1;
+	
+	// Zerando as forças antes de recalcular
+	for (int i = 0; i < n; ++i){
+		todas[i].f[0] = 0.0;
+		todas[i].f[1] = 0.0;
+		todas[i].f[2] = 0.0;
+	}
+	
+	// ACHO QUE O ERRO ESTÁ AQUI
+	for (int i = 0; i < n; ++i){
+		for (int j = i + 1; j < n; ++j){
+				dx = imin(todas[i].p[0], todas[j].p[0], lx);
+				dy = imin(todas[i].p[1], todas[j].p[1], ly);
+				dz = imin(todas[i].p[2], todas[j].p[2], lz);
+				dist = sqrt(dx*dx + dy*dy + dz*dz);
+				
+				//printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
+				// Lennard-Jones
+				c5 = 0.0; 
+				if (dist<cut){
+					c5 = aij(dist, eps, sig);
+					if (dist <= 0.8){
+						c5 = aij(0.8, eps, sig);
+					}
+				}
+
+				// Atribuindo as componentes das forças
+				fx = c5*dx;
+				fy = c5*dy;
+				fz = c5*dz;
+				todas[i].f[0] += fx;
+				todas[j].f[0] += -fx;
+				todas[i].f[1] += fy;
+				todas[j].f[1] += -fy;
+				todas[i].f[2] += fz;
+				todas[j].f[2] += -fz;
+		}
+	}
+}
+*/

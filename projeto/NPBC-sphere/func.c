@@ -3,7 +3,6 @@
 #include <math.h>
 #include "func.h"
 
-//*-*-*-*-*-*-*-*-*FUNÇÕES PARA O GERADOR DE CONCIÇÕES INICIAIS*-*-*-*-*-*-*-*-*-
 double uniform(double min, double max) {
 	/*
 	Função que gera um número aleatório em uma distribuição uniforme
@@ -24,65 +23,94 @@ double dist(double dx, double dy, double dz){
 }
 
 
-void check(particle *todas, int i, double rs, double r){
+particle check(particle *todas, particle teste, int i, double rs, double r){
 	/*
 	Função recursiva que checa a distância entre a partícula gerada e o resto delas
 	*/
-	double x = todas[i].p[0], y = todas[i].p[1], z = todas[i].p[2];
+	double x = teste.p[0], y = teste.p[1], z = teste.p[2];
 	double rrs = rs - r/2.;
 	
-	for (int j = i - 1; j >= 0; --j){
+	for (int j = i; j >= 0; --j){
 		double dx = x - todas[j].p[0];
 		double dy = y - todas[j].p[1];
 		double dz = z - todas[j].p[2];
 		double dpart = dist(dx, dy, dz);
-		double dcentro = dist(x, y, z);
-		if (dpart <= 2.*r || dcentro >= rrs) { //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<ESSA PORRA TA EXPLODINDO
-			todas[i].p[0] = uniform(-rrs, rrs);
-			todas[i].p[1] = uniform(-rrs, rrs);
-			todas[i].p[2] = uniform(-rrs, rrs);
-			printf("--------------------------------------------\n");
-			printf("Distância entre (%d, %d): %lf\n", i, j, dpart);
-			printf("Distância do centro: %lf\n", dcentro);
-			check(todas, i, rs, r);
-			//printf("Gerei dnv a %d\n", i);
+		if (dpart <= 2.*r) {
+			//printf("Conflito entre (%d, %d)\n", i+1, j);
+			teste.p[0] = uniform(-rrs, rrs);
+			teste.p[1] = uniform(-rrs, rrs);
+			teste.p[2] = uniform(-rrs, rrs);
+			teste = check(todas, teste, i, rs, r);
+		}
+	}
+	return teste;
+}
+
+
+void gerador(particle *todas, int n, double rs, double r){
+	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+	particle teste;
+	
+	todas[0].p[0] = uniform(-rrs/2., rrs/2.);
+	todas[0].p[1] = uniform(-rrs/2., rrs/2.);
+	todas[0].p[2] = uniform(-rrs/2., rrs/2.);
+	
+	int i = 0;
+	
+	while(i <= n-1){
+		teste.p[0] = uniform(-rrs, rrs);
+		teste.p[1] = uniform(-rrs, rrs);
+		teste.p[2] = uniform(-rrs, rrs);
+		teste = check(todas, teste, i, rs, r);
+		if(dist(teste.p[0], teste.p[1], teste.p[2]) < rrs){
+			++i;
+			todas[i].p[0] = teste.p[0];
+			todas[i].p[1] = teste.p[1];
+			todas[i].p[2] = teste.p[2];
+		}
+	}
+	
+	for(int i = 0; i < n; ++i){
+		todas[i].v[0] = 0.;
+		todas[i].v[1] = 0.;
+		todas[i].v[2] = 0.;
+		
+		todas[i].f[0] = 0.;
+		todas[i].f[1] = 0.;
+		todas[i].f[2] = 0.;
+		if(i < n/2){
+			todas[i].carga = NA;
+		}else{
+			todas[i].carga = CL;
 		}
 	}
 }
 
-void gerador(particle *todas, int n, double rs, double r){
-	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+
+void ciFile(particle *todas, int n, double rs, double r){
+	// Escrita do arquivo
+	char titulo[25];
+	sprintf(titulo, "CI_Rs%.1f_R%.1f.txt", rs, r);
 	
-	todas[0].p[0] = uniform(-rrs, rrs);
-	todas[0].p[1] = uniform(-rrs, rrs);
-	todas[0].p[2] = uniform(-rrs, rrs);
+	FILE *ark = fopen(titulo, "w");
+	fprintf (ark, "%i\n\n", n);
 	
-	for (int i = 1; i < n; ++i){
-		todas[i].p[0] = uniform(-rrs, rrs);
-		todas[i].p[0] = uniform(-rrs, rrs);
-		todas[i].p[0] = uniform(-rrs, rrs);
-		check(todas, i, rs, r);
-		printf("Gerei a %d\n", i);
+	for (int i = 0; i < n; ++i) {
+		if (i < n/2){
+			fprintf (ark, "Na ");
+		}else{
+			fprintf (ark, "Cl ");
+		}
+		for (int k = 0; k < 3; ++k){
+			fprintf (ark, "%lf ", todas[i].p[k]);
+		}
+		fprintf (ark, "\n");
 	}
+	fclose(ark);
 }
 
 
-
-
-//-*-*-*-*-*-*-*-*-*-*-FUNÇÕES PARA A DINÂMICA*-*-*-*-*-*-*-*-*-*-*-*-*-
-double imin(double p1, double p2, double l){
-    // Imagem mínima
-    double dp;
-    
-    dp = p2 - p1;
-    dp = dp - round(dp/l)*l;
-    
-    return dp;
-}
-
-
-void forcas(particle *todas, int n, double lx, double ly, double lz){
-	double imin(double p1, double p2, double l);
+void forcas(particle *todas, int n){
 	double cut, c5, dx, dy, dz, dist, fx, fy, fz;
 	cut = pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
 	
@@ -96,12 +124,11 @@ void forcas(particle *todas, int n, double lx, double ly, double lz){
 	// ACHO QUE O ERRO ESTÁ AQUI
 	for (int i = 0; i < n; ++i){
 		for (int j = i + 1; j < n; ++j){
-				dx = imin(todas[i].p[0], todas[j].p[0], lx);
-				dy = imin(todas[i].p[1], todas[j].p[1], ly);
-				dz = imin(todas[i].p[2], todas[j].p[2], lz);
+				dx = todas[i].p[0] - todas[j].p[0];
+				dy = todas[i].p[1] - todas[j].p[1];
+				dz = todas[i].p[2] - todas[j].p[2];
 				dist = sqrt(dx*dx + dy*dy + dz*dz);
 				
-				//printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
 				// Lennard-Jones
 				c5 = 0.0; 
 				if (dist<cut){
@@ -127,6 +154,7 @@ void forcas(particle *todas, int n, double lx, double ly, double lz){
 	}
 }
 
+
 double gausran(){
     // generate gaussianrandom_numbers                                                                   
     int g;
@@ -140,101 +168,100 @@ double gausran(){
     res  = R1*cos(R2);
     return res;
 }
-/* 
-void integrador(particle *todas, double *c, int n, double lx, double ly, double lz){
-	// Cálculo inicial das forças
-	forcas(todas, n, lx, ly, lz);
+
+
+void dinamica(particle *todas, int n, double rs, double r, double fric, double tf, double dt){
+	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+	//Loop Temporal
+	double con, c0, c1, c2, desv_r, desv_v, cvv, cvv2, dt2;
+	con = fric*dt;
+	c0 = exp(-con);
+	c1 = (1-c0)/con;
+	c2 = (1-c1)/con;
+	desv_r = dt*sqrt((1/con) * (2 - ((1/con) * (3 - (4*c0) + (c0*c0)))));
+	desv_v = sqrt(1-(c0*c0));
+	cvv = (dt/con/desv_v/desv_r) * (1-c0)*(1-c0);
+	cvv2 = sqrt(1 - (cvv*cvv));
+	dt2 = dt*dt;
 	
-	// Loop do espaço sobre todas as partículas
-	for (int j = 0; j < n; ++j){
-		todas[j].gaussian[0] = gausran();
-		todas[j].gaussian[1] = gausran();
-		todas[j].gaussian[2] = gausran();
+	// Contadores auxiliares para o loop
+	int counter = 0;
+	int contanim = 0;
+	for (double t = 0; t <= tf; t += dt){
+		// Cálculo inicial das forças
+		forcas(todas, n);
 		
-		// Passo no espaço
-		todas[j].p[0] += c[1] * c[8] * todas[j].v[0] + c[2] * c[7] * todas[j].f[0] + todas[j].gaussian[0] * c[3];
-		todas[j].p[1] += c[1] * c[8] * todas[j].v[1] + c[2] * c[7] * todas[j].f[1] + todas[j].gaussian[1] * c[3];
-		todas[j].p[2] += c[1] * c[8] * todas[j].v[2] + c[2] * c[7] * todas[j].f[2] + todas[j].gaussian[2] * c[3];
+		// Loop do espaço sobre todas as partículas
+		for (int j = 0; j < n; ++j){
+			todas[j].gaussian[0] = gausran();
+			todas[j].gaussian[1] = gausran();
+			todas[j].gaussian[2] = gausran();
+			
+			// Passo no espaço
+			todas[j].p[0] += c1 * dt * todas[j].v[0] + c2 * dt2 * todas[j].f[0] + todas[j].gaussian[0] * desv_r;
+			todas[j].p[1] += c1 * dt * todas[j].v[1] + c2 * dt2 * todas[j].f[1] + todas[j].gaussian[1] * desv_r;
+			todas[j].p[2] += c1 * dt * todas[j].v[2] + c2 * dt2 * todas[j].f[2] + todas[j].gaussian[2] * desv_r;
+			
+			// NPBC
+			if(dist(todas[j].p[0], todas[j].p[1], todas[j].p[2]) >= rrs){
+				todas[j].v[0] *= -1.;
+				todas[j].v[1] *= -1.;
+				todas[j].v[2] *= -1.;
+			}
+		}
+		// Cálculo final das forças
+		forcas(todas, n);
 		
-		// PBC
-		if (fabs(todas[j].p[0]) > lx/2.){
-			todas[j].p[0] = lx * (fabs(todas[j].p[0])/todas[j].p[0]);
+		// Loop da velocidade sobre todas partículas
+		for (int j = 0; j < n; ++j){
+			// Vx
+			todas[j].v[0] = c0 * todas[j].v[0] + (c1 - c2) * dt * todas[j].f[0] + 
+			c2 * dt * todas[j].f[0] + desv_v * (cvv * todas[j].gaussian[0] + cvv2 * gausran());
+			// Vy
+			todas[j].v[1] = c0 * todas[j].v[1] + (c1 - c2) * dt * todas[j].f[1] + 
+			c2 * dt * todas[j].f[1] + desv_v * (cvv * todas[j].gaussian[1] + cvv2 * gausran());
+			// Vz
+			todas[j].v[2] = c0 * todas[j].v[2] + (c1 - c2) * dt * todas[j].f[2] + 
+			c2 * dt * todas[j].f[2] + desv_v * (cvv * todas[j].gaussian[2] + cvv2 * gausran());
 		}
-		if (fabs(todas[j].p[1]) > ly/2.){
-			todas[j].p[1] = ly * (fabs(todas[j].p[1])/todas[j].p[1]);
+		
+		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<A PARTIR DAQUI NÃO FIZ, TESTA ESSA DINÂMICA
+		
+		/* Esse salva em binário
+		// Escrevendo arquivo do passo
+		if (fmod(counter, CHECKPOINT) == 0){
+			char passo[25];
+			sprintf(passo, "LJ_L%.1lf_TF%.1lf/%d.bin", L, TF, counter);
+			
+			FILE *in = fopen(passo, "wb");
+			
+			fwrite(todas, sizeof(particle), n, in);
+			fclose(in);
 		}
-		if (fabs(todas[j].p[2]) > lz/2.){
-			todas[j].p[2] = lz * (fabs(todas[j].p[2])/todas[j].p[2]);
-		}
-	}
-	// Cálculo final das forças
-	forcas(todas, n, lx, ly, lz);
-	
-	// Loop da velocidade sobre todas partículas
-	for (int j = 0; j < n; ++j){
-		// Vx
-		todas[j].v[0] = c[0] * todas[j].v[0] + (c[1] - c[2]) * c[8] * todas[j].f[0] + 
-		c[2] * c[8] * todas[j].f[0] + c[4] * (c[5] * todas[j].gaussian[0] + c[6] * gausran());
-		// Vy
-		todas[j].v[1] = c[0] * todas[j].v[1] + (c[1] - c[2]) * c[8] * todas[j].f[1] + 
-		c[2] * c[8] * todas[j].f[1] + c[4] * (c[5] * todas[j].gaussian[1] + c[6] * gausran());
-		// Vz
-		todas[j].v[2] = c[0] * todas[j].v[2] + (c[1] - c[2]) * c[8] * todas[j].f[2] + 
-		c[2] * c[8] * todas[j].f[2] + c[4] * (c[5] * todas[j].gaussian[2] + c[6] * gausran());
-	}
-}
-
-
-TENTATIVA DE COPIAR A FUNÇÃO EM PYTHON
-double aij(double r, double eps, double sig){
-	return 48 * (eps / (sig*sig)) * (pow((sig / r), 14) - (0.5 * pow((sig / r), 8)));
-}
-
-void forcas(particle *todas, int n, double lx, double ly, double lz){
-	// Libera a memória depois
-	double imin(double p1, double p2, double l);
-	double cut, dx, dy, dz, dist, fx, fy, fz, eps, sig, c5, r;
-	cut = 2.5;
-	eps = 1;
-	sig = 1;
-	r = 1;
-	
-	// Zerando as forças antes de recalcular
-	for (int i = 0; i < n; ++i){
-		todas[i].f[0] = 0.0;
-		todas[i].f[1] = 0.0;
-		todas[i].f[2] = 0.0;
-	}
-	
-	// ACHO QUE O ERRO ESTÁ AQUI
-	for (int i = 0; i < n; ++i){
-		for (int j = i + 1; j < n; ++j){
-				dx = imin(todas[i].p[0], todas[j].p[0], lx);
-				dy = imin(todas[i].p[1], todas[j].p[1], ly);
-				dz = imin(todas[i].p[2], todas[j].p[2], lz);
-				dist = sqrt(dx*dx + dy*dy + dz*dz);
-				
-				//printf("%-3d e %-3d\tDistancia; %.3lf\tcut; %.3lf\n", i+1, j+1, dist, cut);
-				// Lennard-Jones
-				c5 = 0.0; 
-				if (dist<cut){
-					c5 = aij(dist, eps, sig);
-					if (dist <= 0.8){
-						c5 = aij(0.8, eps, sig);
-					}
+		*/
+		
+		// Esse salva em .txt pra fazer a animação
+		if (counter >= 10000){
+			fprintf(in, "%d\n\n", n);
+			for (int i = 0; i < n; ++i){
+				if (i < n/2){
+					fprintf(in, "Na ");
+				}else{
+					fprintf(in, "Cla ");
 				}
-
-				// Atribuindo as componentes das forças
-				fx = c5*dx;
-				fy = c5*dy;
-				fz = c5*dz;
-				todas[i].f[0] += fx;
-				todas[j].f[0] += -fx;
-				todas[i].f[1] += fy;
-				todas[j].f[1] += -fy;
-				todas[i].f[2] += fz;
-				todas[j].f[2] += -fz;
+				fprintf(in, "%lf %lf %lf\n", todas[i].p[0], todas[i].p[1], todas[i].p[2]);
+			}
+			fprintf(in, "\n");
+			++contanim;
+			if (contanim >= 500) break;
 		}
+		++counter;
 	}
+
 }
-*/
+
+
+
+
+
+

@@ -1,5 +1,6 @@
-#define NA 1.
-#define CL -1.
+#define NA 1.	// Carga do sódio
+#define CL -1.	// Carga do Cloro
+#define CHECKPOINT 10.
 
 typedef struct {
 	// Estrutura com os atributos possíveis de uma partícula
@@ -28,7 +29,11 @@ void ciFile(particle *todas, int n, double rs, double r);
 // Calcula as forças do potencial de Lennard-Jones
 void forcas(particle *todas, int n);
 
+// Checa se alguma partícula está fora da esfera ou se tem alguma se sobrepondo
+void checador(particle *todas, int n, double rs, double r);
+
 // Realiza a dinâmica
 void dinamica(particle *todas, int n, double rs, double r, double fric, double tf, double dt);
 
+// Gerador de numeros aleatórios em uma distribuição Gaussiana
 double gausran();

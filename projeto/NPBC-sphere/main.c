@@ -11,10 +11,14 @@ Programa que cria uma esfera com partículas em posições aleatórias e realiza
 #include <time.h>
 #include "func.h"
 
+//*-*-*-*-*-*-*-*-*-*-*PARÂMETROS*-*-*-*-*-*-*-*-*-
 #define R 1.		// Raio das particulas
-#define RS (10.*R)	// Raio da esfera	
+#define RS (8.*R)	// Raio da esfera	
 #define N 100		// Número de partículas
-
+#define FRIC 0.1	// Coeficiente de fricção
+#define DT 0.005	// Delta de tempo
+#define TF 5		// Tempo final
+//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 int main (){
 	srand(time(NULL));
@@ -36,7 +40,10 @@ int main (){
 	// Escrita do arquivo de posições iniciais
 	ciFile(todas, N, RS, R);
 	
-	forcas(todas, N);
+	// Dinâmica<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<TÁ ROLANDO UNS CONFLITOS
+	dinamica(todas, N, RS, R, FRIC, TF, DT);	
+	
+	checador(todas, N, RS, R);
 	
 	return 0;
 }

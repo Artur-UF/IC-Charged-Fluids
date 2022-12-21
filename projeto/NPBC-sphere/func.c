@@ -139,9 +139,9 @@ void forcas(particle *todas, int n){
 				}
 
 				// Atribuindo as componentes das forças (botei o sinal na frente pra corrigir)
-				fx = -c5*dx/dist;
-				fy = -c5*dy/dist;
-				fz = -c5*dz/dist;
+				fx = c5*dx/dist;
+				fy = c5*dy/dist;
+				fz = c5*dz/dist;
 				// Particula i:
 				todas[i].f[0] += fx;
 				todas[i].f[1] += fy;
@@ -150,6 +150,8 @@ void forcas(particle *todas, int n){
 				todas[j].f[0] += -fx;
 				todas[j].f[1] += -fy;
 				todas[j].f[2] += -fz;
+				
+				//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Força eletroestática
 		}
 	}
 }
@@ -170,6 +172,31 @@ double gausran(){
 }
 
 
+void checador(particle *todas, int n, double rs, double r){
+	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+	// Checando se está fora da esfera
+	for(int j = 0; j < n; ++j){
+		double distancia = dist(todas[j].p[0], todas[j].p[1], todas[j].p[2]);
+		if(distancia >= rrs){
+			printf("d(%d) = %.3lf\n", j, distancia);		
+		}
+	}
+	
+	// Checando se está sobrepondo alguma partícula
+	for(int i = 0; i < n; ++i){
+		for (int j = i + 1; j < n; ++j){
+			double dx = todas[i].p[0] - todas[j].p[0];
+			double dy = todas[i].p[1] - todas[j].p[1];
+			double dz = todas[i].p[2] - todas[j].p[2];
+			double dpart = dist(dx, dy, dz);
+			if (dpart <= 2.*r) {
+				printf("Conflito entre (%d, %d): d = %.3lf\n", i, j, dpart);
+			}
+		}
+	}
+}
+
+
 void dinamica(particle *todas, int n, double rs, double r, double fric, double tf, double dt){
 	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
 	//Loop Temporal
@@ -184,24 +211,29 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double t
 	cvv2 = sqrt(1 - (cvv*cvv));
 	dt2 = dt*dt;
 	
+	// Aqui cria o arquivo que será usado para a animação
+	char passo[25];
+	sprintf(passo, "animLJ_RS%.1lf_TF%.1lf.txt", rs, tf);
+	
+	FILE *in = fopen(passo, "w");
+	
 	// Contadores auxiliares para o loop
 	int counter = 0;
 	int contanim = 0;
 	for (double t = 0; t <= tf; t += dt){
 		// Cálculo inicial das forças
 		forcas(todas, n);
-		
+		//printf("Passo %d\n", counter);
 		// Loop do espaço sobre todas as partículas
 		for (int j = 0; j < n; ++j){
 			todas[j].gaussian[0] = gausran();
 			todas[j].gaussian[1] = gausran();
 			todas[j].gaussian[2] = gausran();
-			
+
 			// Passo no espaço
 			todas[j].p[0] += c1 * dt * todas[j].v[0] + c2 * dt2 * todas[j].f[0] + todas[j].gaussian[0] * desv_r;
 			todas[j].p[1] += c1 * dt * todas[j].v[1] + c2 * dt2 * todas[j].f[1] + todas[j].gaussian[1] * desv_r;
 			todas[j].p[2] += c1 * dt * todas[j].v[2] + c2 * dt2 * todas[j].f[2] + todas[j].gaussian[2] * desv_r;
-			
 			// NPBC
 			if(dist(todas[j].p[0], todas[j].p[1], todas[j].p[2]) >= rrs){
 				todas[j].v[0] *= -1.;
@@ -225,23 +257,9 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double t
 			c2 * dt * todas[j].f[2] + desv_v * (cvv * todas[j].gaussian[2] + cvv2 * gausran());
 		}
 		
-		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<A PARTIR DAQUI NÃO FIZ, TESTA ESSA DINÂMICA
-		
-		/* Esse salva em binário
-		// Escrevendo arquivo do passo
-		if (fmod(counter, CHECKPOINT) == 0){
-			char passo[25];
-			sprintf(passo, "LJ_L%.1lf_TF%.1lf/%d.bin", L, TF, counter);
-			
-			FILE *in = fopen(passo, "wb");
-			
-			fwrite(todas, sizeof(particle), n, in);
-			fclose(in);
-		}
-		*/
-		
 		// Esse salva em .txt pra fazer a animação
 		if (counter >= 10000){
+			//printf("%d\n", contanim);
 			fprintf(in, "%d\n\n", n);
 			for (int i = 0; i < n; ++i){
 				if (i < n/2){

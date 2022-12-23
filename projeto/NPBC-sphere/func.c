@@ -87,10 +87,10 @@ void gerador(particle *todas, int n, double rs, double r){
 }
 
 
-void ciFile(particle *todas, int n, double rs, double r){
+void ciFile(particle *todas, int n, double rs, double tf, double lb){
 	// Escrita do arquivo
-	char titulo[25];
-	sprintf(titulo, "CI_Rs%.1f_R%.1f.txt", rs, r);
+	char titulo[35];
+	sprintf(titulo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/CI.txt", rs, tf, lb);
 	
 	FILE *ark = fopen(titulo, "w");
 	fprintf (ark, "%i\n\n", n);
@@ -109,10 +109,13 @@ void ciFile(particle *todas, int n, double rs, double r){
 	fclose(ark);
 }
 
-
-void forcas(particle *todas, int n){
-	double cut, c5, dx, dy, dz, dist, fx, fy, fz;
+void forcas(particle *todas, int n, double r, double lb){
+	// Constantes para o Lennard-Jones
+	double cut, c5, dx, dy, dz, dist, fx = 0, fy = 0, fz = 0;
 	cut = pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
+	
+	// Constantes para a Força eletrostática
+	double pfel, cadm = lb/r;	// Constante adimensionalizadora
 	
 	// Zerando as forças antes de recalcular
 	for (int i = 0; i < n; ++i){
@@ -138,10 +141,18 @@ void forcas(particle *todas, int n){
 					}
 				}
 
-				// Atribuindo as componentes das forças (botei o sinal na frente pra corrigir)
-				fx = c5*dx/dist;
-				fy = c5*dy/dist;
-				fz = c5*dz/dist;
+				// Atribuindo as componentes das forças
+				pfel = cadm*(todas[i].carga*todas[j].carga); // parametro da força eletrostática
+								
+				// Somando as forças de Lennard-Jones
+				fx += c5*dx/dist;
+				fy += c5*dy/dist;
+				fz += c5*dz/dist;
+				// Somando as forças Eletrostáticas<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DÁ CERTO ISSO???????????
+				fx += pfel*(dx/pow(dist, 3));
+				fy += pfel*(dy/pow(dist, 3));
+				fz += pfel*(dz/pow(dist, 3));
+				
 				// Particula i:
 				todas[i].f[0] += fx;
 				todas[i].f[1] += fy;
@@ -151,7 +162,9 @@ void forcas(particle *todas, int n){
 				todas[j].f[1] += -fy;
 				todas[j].f[2] += -fz;
 				
-				//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Força eletroestática
+				fx = 0;
+				fy = 0;
+				fz = 0;
 		}
 	}
 }
@@ -197,7 +210,7 @@ void checador(particle *todas, int n, double rs, double r){
 }
 
 
-void dinamica(particle *todas, int n, double rs, double r, double fric, double tf, double dt){
+void dinamica(particle *todas, int n, double rs, double r, double fric, double lb, double tf, double dt){
 	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
 	//Loop Temporal
 	double con, c0, c1, c2, desv_r, desv_v, cvv, cvv2, dt2;
@@ -212,18 +225,20 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double t
 	dt2 = dt*dt;
 	
 	// Aqui cria o arquivo que será usado para a animação
-	char passo[25];
-	sprintf(passo, "animLJ_RS%.1lf_TF%.1lf.txt", rs, tf);
+	char passo[35];
+	sprintf(passo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/animLJ.txt", rs, tf, lb);
 	
 	FILE *in = fopen(passo, "w");
 	
 	// Contadores auxiliares para o loop
 	int counter = 0;
 	int contanim = 0;
+	int frames = 700;
+	double limite = tf/dt - (frames + 1);
 	for (double t = 0; t <= tf; t += dt){
 		// Cálculo inicial das forças
-		forcas(todas, n);
-		//printf("Passo %d\n", counter);
+		forcas(todas, n, r, lb);
+		
 		// Loop do espaço sobre todas as partículas
 		for (int j = 0; j < n; ++j){
 			todas[j].gaussian[0] = gausran();
@@ -242,7 +257,7 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double t
 			}
 		}
 		// Cálculo final das forças
-		forcas(todas, n);
+		forcas(todas, n, r, lb);
 		
 		// Loop da velocidade sobre todas partículas
 		for (int j = 0; j < n; ++j){
@@ -258,7 +273,7 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double t
 		}
 		
 		// Esse salva em .txt pra fazer a animação
-		if (counter >= 10000){
+		if (counter >= limite){
 			//printf("%d\n", contanim);
 			fprintf(in, "%d\n\n", n);
 			for (int i = 0; i < n; ++i){
@@ -271,10 +286,11 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double t
 			}
 			fprintf(in, "\n");
 			++contanim;
-			if (contanim >= 500) break;
+			if (contanim >= frames) break;
 		}
 		++counter;
 	}
+	fclose(in);
 
 }
 

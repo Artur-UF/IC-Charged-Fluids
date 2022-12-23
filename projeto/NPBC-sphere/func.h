@@ -24,16 +24,16 @@ particle check(particle *todas, particle teste, int i, double rs, double r);
 void gerador(particle *todas, int n, double rs, double r);
 
 // Gera um arquivo com as posições iniciais das partículas
-void ciFile(particle *todas, int n, double rs, double r);
+void ciFile(particle *todas, int n, double rs, double tf, double lb);
 
 // Calcula as forças do potencial de Lennard-Jones
-void forcas(particle *todas, int n);
+void forcas(particle *todas, int n, double r, double lb);
 
 // Checa se alguma partícula está fora da esfera ou se tem alguma se sobrepondo
 void checador(particle *todas, int n, double rs, double r);
 
 // Realiza a dinâmica
-void dinamica(particle *todas, int n, double rs, double r, double fric, double tf, double dt);
+void dinamica(particle *todas, int n, double rs, double r, double fric, double lb, double tf, double dt);
 
 // Gerador de numeros aleatórios em uma distribuição Gaussiana
 double gausran();

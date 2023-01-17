@@ -23,32 +23,32 @@ double dist(double dx, double dy, double dz){
 }
 
 
-particle check(particle *todas, particle teste, int i, double rs, double r){
+particle check(particle *todas, particle teste, int i, double rs, double d){
 	/*
 	Função recursiva que checa a distância entre a partícula gerada e o resto delas
 	*/
 	double x = teste.p[0], y = teste.p[1], z = teste.p[2];
-	double rrs = rs - r/2.;
+	double rrs = rs - d/2.;
 	
 	for (int j = i; j >= 0; --j){
 		double dx = x - todas[j].p[0];
 		double dy = y - todas[j].p[1];
 		double dz = z - todas[j].p[2];
 		double dpart = dist(dx, dy, dz);
-		if (dpart <= 2.*r) {
+		if (dpart <= d) {
 			//printf("Conflito entre (%d, %d)\n", i+1, j);
 			teste.p[0] = uniform(-rrs, rrs);
 			teste.p[1] = uniform(-rrs, rrs);
 			teste.p[2] = uniform(-rrs, rrs);
-			teste = check(todas, teste, i, rs, r);
+			teste = check(todas, teste, i, rs, d);
 		}
 	}
 	return teste;
 }
 
 
-void gerador(particle *todas, int n, double rs, double r){
-	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+void gerador(particle *todas, int n, double rs, double d){
+	double rrs = rs - d/2.;		// Raio relativo ao centro das particulas
 	particle teste;
 	
 	todas[0].p[0] = uniform(-rrs/2., rrs/2.);
@@ -61,7 +61,7 @@ void gerador(particle *todas, int n, double rs, double r){
 		teste.p[0] = uniform(-rrs, rrs);
 		teste.p[1] = uniform(-rrs, rrs);
 		teste.p[2] = uniform(-rrs, rrs);
-		teste = check(todas, teste, i, rs, r);
+		teste = check(todas, teste, i, rs, d);
 		if(dist(teste.p[0], teste.p[1], teste.p[2]) < rrs){
 			++i;
 			todas[i].p[0] = teste.p[0];
@@ -109,13 +109,13 @@ void ciFile(particle *todas, int n, double rs, double tf, double lb){
 	fclose(ark);
 }
 
-void forcas(particle *todas, int n, double r, double lb){
+void forcas(particle *todas, int n, double d, double lb){
 	// Constantes para o Lennard-Jones
 	double cut, c5, dx, dy, dz, dist, fx = 0, fy = 0, fz = 0;
 	cut = pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
 	
 	// Constantes para a Força eletrostática
-	double pfel, cadm = lb/r;	// Constante adimensionalizadora
+	double pfel, cadm = lb/d;	// Constante adimensionalizadora
 	
 	// Zerando as forças antes de recalcular
 	for (int i = 0; i < n; ++i){
@@ -142,16 +142,16 @@ void forcas(particle *todas, int n, double r, double lb){
 				}
 
 				// Atribuindo as componentes das forças
-				pfel = cadm*(todas[i].carga*todas[j].carga); // parametro da força eletrostática
+				pfel = cadm*(todas[i].carga*todas[j].carga)/(pow(dist, 3)); // parametro da força eletrostática
 								
 				// Somando as forças de Lennard-Jones
 				fx += c5*dx/dist;
 				fy += c5*dy/dist;
 				fz += c5*dz/dist;
 				// Somando as forças Eletrostáticas<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DÁ CERTO ISSO???????????
-				fx += pfel*(dx/pow(dist, 3));
-				fy += pfel*(dy/pow(dist, 3));
-				fz += pfel*(dz/pow(dist, 3));
+				fx += pfel*dx;
+				fy += pfel*dy;
+				fz += pfel*dz;
 				
 				// Particula i:
 				todas[i].f[0] += fx;
@@ -185,8 +185,8 @@ double gausran(){
 }
 
 
-void checador(particle *todas, int n, double rs, double r){
-	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+void checador(particle *todas, int n, double rs, double d){
+	double rrs = rs - d/2.;		// Raio relativo ao centro das particulas
 	// Checando se está fora da esfera
 	for(int j = 0; j < n; ++j){
 		double distancia = dist(todas[j].p[0], todas[j].p[1], todas[j].p[2]);
@@ -202,7 +202,7 @@ void checador(particle *todas, int n, double rs, double r){
 			double dy = todas[i].p[1] - todas[j].p[1];
 			double dz = todas[i].p[2] - todas[j].p[2];
 			double dpart = dist(dx, dy, dz);
-			if (dpart <= 2.*r) {
+			if (dpart <= d) {
 				printf("Conflito entre (%d, %d): d = %.3lf\n", i, j, dpart);
 			}
 		}
@@ -210,8 +210,8 @@ void checador(particle *todas, int n, double rs, double r){
 }
 
 
-void dinamica(particle *todas, int n, double rs, double r, double fric, double lb, double tf, double dt){
-	double rrs = rs - r/2.;		// Raio relativo ao centro das particulas
+void dinamica(particle *todas, int n, double rs, double d, double fric, double lb, double tf, double dt){
+	double rrs = rs - d/2.;		// Raio relativo ao centro das particulas
 	//Loop Temporal
 	double con, c0, c1, c2, desv_r, desv_v, cvv, cvv2, dt2;
 	con = fric*dt;
@@ -233,11 +233,11 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double l
 	// Contadores auxiliares para o loop
 	int counter = 0;
 	int contanim = 0;
-	int frames = 700;
+	int frames = 500;
 	double limite = tf/dt - (frames + 1);
 	for (double t = 0; t <= tf; t += dt){
 		// Cálculo inicial das forças
-		forcas(todas, n, r, lb);
+		forcas(todas, n, d, lb);
 		
 		// Loop do espaço sobre todas as partículas
 		for (int j = 0; j < n; ++j){
@@ -257,7 +257,7 @@ void dinamica(particle *todas, int n, double rs, double r, double fric, double l
 			}
 		}
 		// Cálculo final das forças
-		forcas(todas, n, r, lb);
+		forcas(todas, n, d, lb);
 		
 		// Loop da velocidade sobre todas partículas
 		for (int j = 0; j < n; ++j){

@@ -18,22 +18,22 @@ double uniform(double min, double max);
 double dist(double dx, double dy, double dz);
 
 // Função recursiva que checa se a artícula atual está sobreondo alguma e se está contida na esfera
-particle check(particle *todas, particle teste, int i, double rs, double r);
+particle check(particle *todas, particle teste, int i, double rs, double d);
 
 // Gera as coordenadas aleatórias de todas as partículas
-void gerador(particle *todas, int n, double rs, double r);
+void gerador(particle *todas, int n, double rs, double d);
 
 // Gera um arquivo com as posições iniciais das partículas
 void ciFile(particle *todas, int n, double rs, double tf, double lb);
 
 // Calcula as forças do potencial de Lennard-Jones
-void forcas(particle *todas, int n, double r, double lb);
+void forcas(particle *todas, int n, double d, double lb);
 
 // Checa se alguma partícula está fora da esfera ou se tem alguma se sobrepondo
-void checador(particle *todas, int n, double rs, double r);
+void checador(particle *todas, int n, double rs, double d);
 
 // Realiza a dinâmica
-void dinamica(particle *todas, int n, double rs, double r, double fric, double lb, double tf, double dt);
+void dinamica(particle *todas, int n, double rs, double d, double fric, double lb, double tf, double dt);
 
 // Gerador de numeros aleatórios em uma distribuição Gaussiana
 double gausran();

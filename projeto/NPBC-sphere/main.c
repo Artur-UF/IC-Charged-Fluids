@@ -13,13 +13,13 @@ Programa que cria uma esfera com partículas em posições aleatórias e realiza
 #include "func.h"
 
 //*-*-*-*-*-*-*-*-*-*-*PARÂMETROS*-*-*-*-*-*-*-*-*-
-#define R 1.		// Raio das particulas
-#define RS (8.*R)	// Raio da esfera	
+#define D 1.		// Diametro das particulas
+#define RS (8.*D)	// Raio da esfera	
 #define N 100		// Número de partículas
 #define FRIC 0.1	// Coeficiente de fricção
-#define LB (2.*R)	// Lambda B
+#define LB (10.*D)	// Lambda B
 #define DT 0.005	// Delta de tempo
-#define TF 30.		// Tempo final
+#define TF 3.		// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 int main (){
@@ -34,7 +34,7 @@ int main (){
 	// É firula, fiz pra comparar o volume da esfera com o volume das partículas
 	double volT, volP, pi = acos(-1);
 	volT = (3./4.)*(RS*RS*RS)*pi;
-	volP = N * (3./4.)*(R*R*R)*pi;
+	volP = N * (3./4.)*(D*D*D*(1/8.))*pi;
 	printf("Volume da esfera: %lf\nVolume das partículas: %lf\n", volT, volP);
 
 	// Criando o arquivo de saída da dinâmica
@@ -50,23 +50,23 @@ int main (){
 	}
 	
 	// Gerando as partículas
-	gerador(todas, N, RS, R);
+	gerador(todas, N, RS, D);
 	
 	// Escrita do arquivo de posições iniciais
 	ciFile(todas, N, RS, TF, LB);
 	
 	// Dinâmica<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<TÁ DANDO CERTO? TESTA MAIS!!!!!!!!!!!!!
-	dinamica(todas, N, RS, R, FRIC, LB, TF, DT);
+	dinamica(todas, N, RS, D, FRIC, LB, TF, DT);
 	
 	clock_t toc = clock();
 	double time = (double)(toc - tic)/CLOCKS_PER_SEC;
 	
-	checador(todas, N, RS, R);
+	checador(todas, N, RS, D);
 	
 	// Escrevendo o arquivo com informações<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<NÃO SERIA LEGAL UMA FUNÇÃO RA ISSO?
 	sprintf(arkinfo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/info.txt", RS, TF, LB);
 	FILE *infos = fopen(arkinfo, "w");
-	fprintf(infos, "#define R %.1lf		// Raio das particulas\n", R);
+	fprintf(infos, "#define D %.1lf		// Raio das particulas\n", D);
 	fprintf(infos, "#define RS %.1lf	// Raio da esfera\n", RS);
 	fprintf(infos, "#define N %d		// Número de partículas\n", N);
 	fprintf(infos, "#define FRIC %.1lf	// Coeficiente de fricção\n", FRIC);

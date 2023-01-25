@@ -3,6 +3,13 @@ $ gcc main.c func.c -lm
 Para abrir o Jmol e verificar $ java -jar Jmol.jar
 
 Programa que cria uma esfera com partículas em posições aleatórias e realiza uma dinâmica de Lennard-Jones
+com forças eletrostáticas entre partículas
+
+Esse programa utiliza os parâmetros para realizar a dinâmica e ao final cria uma pasta cujo título
+identifica qual o raio da esfera, tempo total da simulação e Lambda B utilizados como parâmetros.
+Dentro dessa pasta são criados o arquivo de condições iniciais, com as posições iniciais das partículas, 
+um arquivo para a animação no Jmol com diversos frames e um arquivo com informações gerais sobre a simulação
+rodada.
 */
 
 #include <stdio.h>
@@ -19,7 +26,7 @@ Programa que cria uma esfera com partículas em posições aleatórias e realiza
 #define FRIC 0.1	// Coeficiente de fricção
 #define LB (10.*D)	// Lambda B
 #define DT 0.005	// Delta de tempo
-#define TF 3.		// Tempo final
+#define TF 50.		// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 int main (){
@@ -55,7 +62,7 @@ int main (){
 	// Escrita do arquivo de posições iniciais
 	ciFile(todas, N, RS, TF, LB);
 	
-	// Dinâmica<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<TÁ DANDO CERTO? TESTA MAIS!!!!!!!!!!!!!
+	// Dinâmica
 	dinamica(todas, N, RS, D, FRIC, LB, TF, DT);
 	
 	clock_t toc = clock();
@@ -63,7 +70,7 @@ int main (){
 	
 	checador(todas, N, RS, D);
 	
-	// Escrevendo o arquivo com informações<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<NÃO SERIA LEGAL UMA FUNÇÃO RA ISSO?
+	// Escrevendo o arquivo com informações<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<NÃO SERIA LEGAL UMA FUNÇÃO PRA ISSO?
 	sprintf(arkinfo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/info.txt", RS, TF, LB);
 	FILE *infos = fopen(arkinfo, "w");
 	fprintf(infos, "#define D %.1lf		// Raio das particulas\n", D);

@@ -112,7 +112,7 @@ void ciFile(particle *todas, int n, double rs, double tf, double lb){
 void forcas(particle *todas, int n, double d, double lb){
 	// Constantes para o Lennard-Jones
 	double cut, c5, dx, dy, dz, dist, fx = 0, fy = 0, fz = 0;
-	cut = pow(2., 1./6.); // ESSE CORTE ESTÁ MUITO PEQUENO, POR ISSO NÃO GERA FORÇA
+	cut = pow(2., 1./6.); // Esse corte é pequeno por isso não gera força imadiatamente
 	
 	// Constantes para a Força eletrostática
 	double pfel, cadm = lb/d;	// Constante adimensionalizadora
@@ -124,7 +124,7 @@ void forcas(particle *todas, int n, double d, double lb){
 		todas[i].f[2] = 0.0;
 	}
 	
-	// ACHO QUE O ERRO ESTÁ AQUI
+	// Loop entre pares de partículas
 	for (int i = 0; i < n; ++i){
 		for (int j = i + 1; j < n; ++j){
 				dx = todas[i].p[0] - todas[j].p[0];
@@ -148,7 +148,7 @@ void forcas(particle *todas, int n, double d, double lb){
 				fx += c5*dx/dist;
 				fy += c5*dy/dist;
 				fz += c5*dz/dist;
-				// Somando as forças Eletrostáticas<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DÁ CERTO ISSO???????????
+				// Somando as forças Eletrostáticas
 				fx += pfel*dx;
 				fy += pfel*dy;
 				fz += pfel*dz;
@@ -231,10 +231,11 @@ void dinamica(particle *todas, int n, double rs, double d, double fric, double l
 	FILE *in = fopen(passo, "w");
 	
 	// Contadores auxiliares para o loop
-	int counter = 0;
-	int contanim = 0;
-	int frames = 500;
-	double limite = tf/dt - (frames + 1);
+	int counter = 0;	// Conta o número e passos
+	int contanim = 0;	// Conta o número de frames a serem salvos para a animação
+	int frames = 500;	// O número de frames a serem salvos para a animação
+	double limite = tf/dt - (frames + 1);	// Número do passo a começar a salvar a animação
+	
 	for (double t = 0; t <= tf; t += dt){
 		// Cálculo inicial das forças
 		forcas(todas, n, d, lb);

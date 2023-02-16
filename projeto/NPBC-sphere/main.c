@@ -26,7 +26,7 @@ rodada.
 #define FRIC 0.1	// Coeficiente de fricção
 #define LB (10.*D)	// Lambda B
 #define DT 0.005	// Delta de tempo
-#define TF 50.		// Tempo final
+#define TF 30.		// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 int main (){

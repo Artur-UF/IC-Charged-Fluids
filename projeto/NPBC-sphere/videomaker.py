@@ -5,7 +5,7 @@ import os
 
 images = list()
 
-path0 = os.path.join(os.getcwd(), f'teste')
+path0 = '/home/arturuf/Documentos/video-ic'
 
 for file in Path(path0).iterdir():
     if not file.is_file():
@@ -21,4 +21,4 @@ with imageio.get_writer(path1, mode='I') as writer:
         writer.append_data(image)
 '''
 
-imageio.mimsave(path1, images, fps=2)
+imageio.mimsave(path1, images, fps=24)

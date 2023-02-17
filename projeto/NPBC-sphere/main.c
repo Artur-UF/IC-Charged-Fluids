@@ -24,11 +24,11 @@ rodada.
 #define RS (8.*D)	// Raio da esfera	
 #define N 100		// Número de partículas
 #define FRIC 0.1	// Coeficiente de fricção
-#define LB (10.*D)	// Lambda B
+#define LB (7.*D)	// Lambda B
 #define DT 0.005	// Delta de tempo
 #define TF 30.		// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
+	
 int main (){
 	clock_t tic = clock();
 	int seed = time(NULL); 

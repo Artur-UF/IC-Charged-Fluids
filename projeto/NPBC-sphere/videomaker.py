@@ -1,3 +1,7 @@
+'''
+Código para gerar um gif com várias imagens existentes
+'''
+
 import imageio
 import imageio.v3 as iio
 from pathlib import Path

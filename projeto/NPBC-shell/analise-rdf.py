@@ -35,8 +35,8 @@ def binstolist(path, passos):
 
 def rdf(carga, rs, ri, todas, size=10, g=(), ngr=0, switch=0):
 	n = len(todas)
-	nbins = (rs-ri) * size	# Número de bins em função do tamanho do sistema
-	delg = (rs-ri)/(nbins)	# Tamanho dos bins SE DER ERRADO BOTA O 2
+	nbins = 150 #int(rs-ri) * size	# Número de bins em função do tamanho do sistema
+	delg = (rs-ri)/(nbins)	# Tamanho dos bins
 	rho = n/((4/3)*np.pi*(rs**3 - ri**3))
 	
 	if switch == 0:
@@ -49,7 +49,9 @@ def rdf(carga, rs, ri, todas, size=10, g=(), ngr=0, switch=0):
 			if p.carga == carga:
 				rp = np.sqrt(p.p[0]**2 + p.p[1]**2 + p.p[2]**2) - ri
 				ig = int(rp/delg)
-				g[ig] += 1
+				if ig < nbins:
+					g[ig] += 1
+				else: print('Deu merda nessa')
 		return ngr, g
 	
 	if switch == 2:
@@ -60,15 +62,18 @@ def rdf(carga, rs, ri, todas, size=10, g=(), ngr=0, switch=0):
 		return ngr, g
 			
 	
-path = "LJ_RS10.0_TF30.0_LB7.0"
-nframes = 500
+#-*-*-*-*-*-*-PARÂMETROS*-*-*-*-*-*-*-*
+lb = 7.2
+rs = 20
+ri = rs/2
+tf = 40
+size = 10
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}'
+nframes = 1500
 
 frames = binstolist(path, nframes)
-
-rs = 10 
-ri = 5
-size = 10
-
 
 # Função para as partículas positivas
 ngr1, g1 = rdf(1, rs, ri, frames[0], size=size)
@@ -89,13 +94,13 @@ for fr in range(nframes):
 ngr2, g2 = rdf(-1, rs, ri, frames[-1], size=size, g=g2, ngr=ngr2, switch=2)
 
 
-r = np.linspace(5, 10, len(g1))
+r = np.linspace(ri, rs, len(g1))
 
 plt.plot(r, g1, label='Na')
 plt.plot(r, g2, label='Cl')
 plt.xlabel('r')
 plt.ylabel('g(r)')
-plt.title('Função de Distribuição Radial: g(r)')
+plt.title('Função de Distribuição Radial: g(r)\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | passos = {nframes}')
 plt.grid()
 plt.legend()
 plt.savefig(os.path.join(path, 'rdf.png'), dpi=200)

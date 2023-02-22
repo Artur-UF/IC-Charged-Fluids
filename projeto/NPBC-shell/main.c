@@ -20,14 +20,14 @@ rodada.
 #include "func.h"
 
 //*-*-*-*-*-*-*-*-*-*-*PARÂMETROS*-*-*-*-*-*-*-*-*-
-#define D 1.		// Diametro das particulas
-#define RS (10.*D)	// Raio da esfera externa
+#define D 4.		// Diametro das particulas
+#define RS (17.)	// Raio da esfera externa
 #define RI (RS/2.)	// Raio da esfera interna
 #define N 100		// Número de partículas
 #define FRIC 0.1	// Coeficiente de fricção
-#define LB (7.*D)	// Lambda B
+#define LB (7.2)	// Lambda B
 #define DT 0.005	// Delta de tempo
-#define TF 30.		// Tempo final
+#define TF 40.		// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	
 int main (){
@@ -41,7 +41,7 @@ int main (){
 	
 	// É firula, fiz pra comparar o volume da esfera com o volume das partículas
 	double volT, volP, pi = acos(-1);
-	volT = (3./4.)*(RS*RS*RS)*pi;
+	volT = (3./4.)*((RS*RS*RS) - (RI*RI*RI))*pi;
 	volP = N * (3./4.)*(D*D*D*(1/8.))*pi;
 	printf("Volume da esfera: %lf\nVolume das partículas: %lf\n", volT, volP);
 
@@ -76,7 +76,7 @@ int main (){
 	// Escrevendo o arquivo com informações<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<NÃO SERIA LEGAL UMA FUNÇÃO PRA ISSO?
 	sprintf(arkinfo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/info.txt", RS, TF, LB);
 	FILE *infos = fopen(arkinfo, "w");
-	fprintf(infos, "#define D %.1lf		// Raio das particulas\n", D);
+	fprintf(infos, "#define D %.1lf		// Diametro das particulas\n", D);
 	fprintf(infos, "#define RS %.1lf	// Raio da externo da esfera\n", RS);
 	fprintf(infos, "#define RI %.1lf	// Raio da interno da esfera\n", RI);	
 	fprintf(infos, "#define N %d		// Número de partículas\n", N);

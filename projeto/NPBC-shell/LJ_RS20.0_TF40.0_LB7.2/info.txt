@@ -1,0 +1,11 @@
+#define D 4.0		// Diametro das particulas
+#define RS 20.0	// Raio da externo da esfera
+#define RI 10.0	// Raio da interno da esfera
+#define N 100		// Número de partículas
+#define FRIC 0.1	// Coeficiente de fricção
+#define LB 7.2	// Lambda B
+#define DT 0.0050	// Delta de tempo
+#define TF 40.00	// Tempo final
+Número de passos = 8000
+Tempo de execução: 5.724605s
+Seed aleatória: 1677023996

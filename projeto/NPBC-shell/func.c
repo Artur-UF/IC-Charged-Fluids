@@ -79,6 +79,7 @@ void gerador(particle *todas, int n, double rs, double ri, double d){
 			todas[i].p[0] = teste.p[0];
 			todas[i].p[1] = teste.p[1];
 			todas[i].p[2] = teste.p[2];
+			printf("Particula %d criada\n", i);
 		}
 	}
 	
@@ -257,11 +258,17 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	
 	
 	// Contadores auxiliares para o loop
-	int counter = 0;	// Conta o número e passos
-	int contanim = 0;	// Conta o número de frames a serem salvos em .txt
-	int contbin = 0;	// Conta o número de frames a serem salvos em .bin
-	int frames = 500;	// O número de frames a serem salvos para a animação
-	double limite = tf/dt - (frames + 1);	// Número do passo a começar a salvar a animação
+	int counter = 0;								// Conta o número e passos
+	
+	int contanim = 0;								// Conta o número de frames a serem salvos em .txt
+	int framesanim = 700;							// O número de frames a serem salvos em .txt
+	double limiteanim = tf/dt - (framesanim + 1);	// Número do passo a começar a salvar a animação
+	
+	
+	int contbin = 0;								// Conta o número de frames a serem salvos em .bin
+	int framesbin = 1500;							// O número de frames a serem salvos para a animação
+	double limitebin = tf/dt - (framesbin + 1);		// Número do passo a começar a salvar para arquivo .bin
+	
 	
 	// Cria a pasta para os passos
 	char passos[35], npasso[35];
@@ -269,7 +276,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	sprintf(passos, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/passos", rs, tf, lb);
 	if (mkdir(passos, 0777) == -1){
 		printf("Limpando a passos\n");
-		for(int i = 1; i <= frames; ++i){
+		for(int i = 1; i <= framesbin; ++i){
 			sprintf(npasso, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/passos/%d.bin", rs, tf, lb, i);
 			remove(npasso);
 		}
@@ -291,7 +298,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 			todas[j].p[1] += c1 * dt * todas[j].v[1] + c2 * dt2 * todas[j].f[1] + todas[j].gaussian[1] * desv_r;
 			todas[j].p[2] += c1 * dt * todas[j].v[2] + c2 * dt2 * todas[j].f[2] + todas[j].gaussian[2] * desv_r;
 			
-			if(todas[j].carga == 10.) printf("Mexi na última (passo espaço)\n");
+			if(todas[j].carga == 10.) printf("Mexi na última (passo espaço)\n"); // Pra ver se ele ta mexendo na partícula central
 			
 			// NPBC
 			ds = dist(todas[j].p[0], todas[j].p[1], todas[j].p[2]);
@@ -306,7 +313,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 		
 		// Loop da velocidade sobre todas partículas
 		for (int j = 0; j < n; ++j){
-			if(todas[j].carga == 10.) printf("Mexi na última (passo vel)\n");
+			if(todas[j].carga == 10.) printf("Mexi na última (passo vel)\n"); // Pra ver se ele ta mexendo na partícula central
 			// Vx
 			todas[j].v[0] = c0 * todas[j].v[0] + (c1 - c2) * dt * todas[j].f[0] + 
 			c2 * dt * todas[j].f[0] + desv_v * (cvv * todas[j].gaussian[0] + cvv2 * gausran());
@@ -319,7 +326,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 		}
 		
 		// Esse salva em .txt pra fazer a animação
-		if (counter >= limite && counter < limite + frames){
+		if (counter >= limiteanim && counter < limiteanim + framesanim){
 			fprintf(in, "%d\n\n", n+1);
 			for (int i = 0; i <= n; ++i){
 				if (i < (n + CENT)/2 && i != n){
@@ -339,7 +346,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 		
 		// Esse salva em binário
 		// Escrevendo arquivo do passo
-		if (counter >= limite && counter < limite + frames){
+		if (counter >= limitebin && counter < limitebin + framesbin){
 			++contbin;
 			char passo[35];
 			sprintf(passo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/passos/%d.bin", rs, tf, lb, contbin);

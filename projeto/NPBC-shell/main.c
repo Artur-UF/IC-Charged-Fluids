@@ -21,13 +21,13 @@ rodada.
 
 //*-*-*-*-*-*-*-*-*-*-*PARÂMETROS*-*-*-*-*-*-*-*-*-
 #define D 4.		// Diametro das particulas
-#define RS (17.)	// Raio da esfera externa
+#define RS (20.)	// Raio da esfera externa
 #define RI (RS/2.)	// Raio da esfera interna
-#define N 100		// Número de partículas
+#define N 90		// Número de partículas
 #define FRIC 0.1	// Coeficiente de fricção
-#define LB (7.2)	// Lambda B
+#define LB (7.20)	// Lambda B
 #define DT 0.005	// Delta de tempo
-#define TF 40.		// Tempo final
+#define TF 5.	// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	
 int main (){
@@ -85,7 +85,7 @@ int main (){
 	fprintf(infos, "#define DT %.4lf	// Delta de tempo\n", DT);
 	fprintf(infos, "#define TF %.2lf	// Tempo final\n", TF);
 	fprintf(infos, "Número de passos = %.0lf\n", TF/DT);
-	fprintf(infos, "Tempo de execução: %lfs\n", time);
+	fprintf(infos, "Tempo de execução: %.3lfs\n", time);
 	fprintf(infos, "Seed aleatória: %d\n", seed);
 	
 	fclose(infos);

@@ -79,7 +79,6 @@ void gerador(particle *todas, int n, double rs, double ri, double d){
 			todas[i].p[0] = teste.p[0];
 			todas[i].p[1] = teste.p[1];
 			todas[i].p[2] = teste.p[2];
-			printf("Particula %d criada\n", i);
 		}
 	}
 	
@@ -92,10 +91,10 @@ void gerador(particle *todas, int n, double rs, double ri, double d){
 		todas[i].f[0] = 0.;
 		todas[i].f[1] = 0.;
 		todas[i].f[2] = 0.;
-		if(i < (n + CENT)/2){
+		if(i < (n + abs(CENT))/2){
 			todas[i].carga = NA;
 		}
-		if(i >= (n + CENT)/2){
+		if(i >= (n + abs(CENT))/2){
 			todas[i].carga = CL;
 		}
 	}
@@ -112,10 +111,10 @@ void ciFile(particle *todas, int n, double rs, double tf, double lb){
 	fprintf (ark, "%i\n\n", n+1);
 	
 	for (int i = 0; i <= n; ++i) {
-		if (i < (n + CENT)/2 && i != n){
+		if (i < (n + abs(CENT))/2 && i != n){
 			fprintf (ark, "Na ");
 		}
-		if(i >= (n + CENT)/2 && i != n){
+		if(i >= (n + abs(CENT))/2 && i != n){
 			fprintf (ark, "Cl ");
 		}
 		if(i == n){
@@ -148,10 +147,6 @@ void forcas(particle *todas, int n, double d, double lb){
 	// Loop entre pares de partículas
 	for (int i = 0; i <= n; ++i){
 		for (int j = i + 1; j <= n; ++j){
-				
-				if(j == 100){
-					//printf("força entre [%d(%.1f), %d(%.1f)]\n", i, todas[i].carga, j, todas[j].carga);
-				}
 				dx = todas[i].p[0] - todas[j].p[0];
 				dy = todas[i].p[1] - todas[j].p[1];
 				dz = todas[i].p[2] - todas[j].p[2];
@@ -162,17 +157,27 @@ void forcas(particle *todas, int n, double d, double lb){
 				if (dist<cut){
 					c5 = 5.*( - 6./pow(dist,7) + 12./pow(dist,13));
 					if (dist <= 0.8){
-						c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13));
+						c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13))/dist;
 					}
 				}
 
 				// Atribuindo as componentes das forças
 				pfel = cadm*(todas[i].carga*todas[j].carga)/(pow(dist, 3)); // parametro da força eletrostática
-								
+				
+				/* Debugging
+				if(todas[j].carga == CENT){
+					printf("(central = -30, %d.c  = %.0f)\np: ", i, todas[i].carga);
+					for (int k = 0; k < 3; ++k){
+						printf("%.5lf ", todas[i].p[k]);
+					}
+					printf("\nf: %.5f %.5f %.5f\n", pfel/dx, pfel/dy, pfel/dz);
+					printf("--------------------------------------------------------------------------------\n");
+				}*/				
+				
 				// Somando as forças de Lennard-Jones
-				fx += c5*dx/dist;
-				fy += c5*dy/dist;
-				fz += c5*dz/dist;
+				fx += c5*dx;
+				fy += c5*dy;
+				fz += c5*dz;
 				// Somando as forças Eletrostáticas
 				fx += pfel*dx;
 				fy += pfel*dy;
@@ -261,13 +266,14 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	int counter = 0;								// Conta o número e passos
 	
 	int contanim = 0;								// Conta o número de frames a serem salvos em .txt
-	int framesanim = 700;							// O número de frames a serem salvos em .txt
+	int framesanim = 100;							// O número de frames a serem salvos em .txt
 	double limiteanim = tf/dt - (framesanim + 1);	// Número do passo a começar a salvar a animação
 	
 	
 	int contbin = 0;								// Conta o número de frames a serem salvos em .bin
-	int framesbin = 1500;							// O número de frames a serem salvos para a animação
-	double limitebin = tf/dt - (framesbin + 1);		// Número do passo a começar a salvar para arquivo .bin
+	int framesbin = 100;							// O número de frames a serem salvos para a animação
+	int tcorrel = 1;								// Tempo de correlação, separação entre snaps
+	double limitebin = tf/dt - (framesbin*(tcorrel+1) + 1);	// Número do passo a começar a salvar para arquivo .bin
 	
 	
 	// Cria a pasta para os passos
@@ -298,22 +304,65 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 			todas[j].p[1] += c1 * dt * todas[j].v[1] + c2 * dt2 * todas[j].f[1] + todas[j].gaussian[1] * desv_r;
 			todas[j].p[2] += c1 * dt * todas[j].v[2] + c2 * dt2 * todas[j].f[2] + todas[j].gaussian[2] * desv_r;
 			
-			if(todas[j].carga == 10.) printf("Mexi na última (passo espaço)\n"); // Pra ver se ele ta mexendo na partícula central
-			
 			// NPBC
 			ds = dist(todas[j].p[0], todas[j].p[1], todas[j].p[2]);
-			if(ds >= rrs || ds <= rri){
-				todas[j].v[0] *= -1.;
-				todas[j].v[1] *= -1.;
-				todas[j].v[2] *= -1.;
+			if(ds >= rrs){ // Verificando borda exterior
+				// Verificando o o sinal de x
+				if(todas[j].p[0] > 0 && todas[j].v[0] > 0){
+					todas[j].v[0] *= -1.;
+				}
+				if(todas[j].p[0] < 0 && todas[j].v[0] < 0){
+					todas[j].v[0] *= -1.;
+				}
+				
+				// Verificando o sinal de y
+				if(todas[j].p[1] > 0 && todas[j].v[1] > 0){
+					todas[j].v[1] *= -1.;
+				}
+				if(todas[j].p[1] < 0 && todas[j].v[1] < 0){
+					todas[j].v[1] *= -1.;
+				}
+				
+				// Verificando o sinal de z
+				if(todas[j].p[2] > 0 && todas[j].v[2] > 0){
+					todas[j].v[2] *= -1.;
+				}
+				if(todas[j].p[2] < 0 && todas[j].v[2] < 0){
+					todas[j].v[2] *= -1.;
+				}
+			}
+			if(ds <= rri){ // Verificando borda interior
+				// Verificando o o sinal de x
+				if(todas[j].p[0] > 0 && todas[j].v[0] < 0){
+					todas[j].v[0] *= -1.;
+				}
+				if(todas[j].p[0] < 0 && todas[j].v[0] > 0){
+					todas[j].v[0] *= -1.;
+				}
+				
+				// Verificando o sinal de y
+				if(todas[j].p[1] > 0 && todas[j].v[1] < 0){
+					todas[j].v[1] *= -1.;
+				}
+				if(todas[j].p[1] < 0 && todas[j].v[1] > 0){
+					todas[j].v[1] *= -1.;
+				}
+				
+				// Verificando o sinal de z
+				if(todas[j].p[2] > 0 && todas[j].v[2] < 0){
+					todas[j].v[2] *= -1.;
+				}
+				if(todas[j].p[2] < 0 && todas[j].v[2] > 0){
+					todas[j].v[2] *= -1.;
+				}
 			}
 		}
+		
 		// Cálculo final das forças
 		forcas(todas, n, d, lb);
 		
 		// Loop da velocidade sobre todas partículas
 		for (int j = 0; j < n; ++j){
-			if(todas[j].carga == 10.) printf("Mexi na última (passo vel)\n"); // Pra ver se ele ta mexendo na partícula central
 			// Vx
 			todas[j].v[0] = c0 * todas[j].v[0] + (c1 - c2) * dt * todas[j].f[0] + 
 			c2 * dt * todas[j].f[0] + desv_v * (cvv * todas[j].gaussian[0] + cvv2 * gausran());
@@ -329,10 +378,10 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 		if (counter >= limiteanim && counter < limiteanim + framesanim){
 			fprintf(in, "%d\n\n", n+1);
 			for (int i = 0; i <= n; ++i){
-				if (i < (n + CENT)/2 && i != n){
+				if (i < (n + abs(CENT))/2 && i != n){
 					fprintf (in, "Na ");
 				}
-				if(i >= (n + CENT)/2 && i != n){
+				if(i >= (n + abs(CENT))/2 && i != n){
 					fprintf (in, "Cl ");
 				}
 				if(i  == n){
@@ -346,15 +395,20 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 		
 		// Esse salva em binário
 		// Escrevendo arquivo do passo
-		if (counter >= limitebin && counter < limitebin + framesbin){
-			++contbin;
-			char passo[35];
-			sprintf(passo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/passos/%d.bin", rs, tf, lb, contbin);
-			
-			FILE *inbin = fopen(passo, "wb");
-			
-			fwrite(todas, sizeof(particle), n, inbin);
-			fclose(inbin);
+		if (counter >= limitebin && counter < limitebin + framesbin*tcorrel){
+			if(counter % tcorrel == 0){
+				++contbin;
+				
+				if(contbin == 1) printf("Passo (%d) | arquivo (%d)\n", counter, contbin);
+				
+				char passo[35];
+				sprintf(passo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/passos/%d.bin", rs, tf, lb, contbin);
+				
+				FILE *inbin = fopen(passo, "wb");
+				
+				fwrite(todas, sizeof(particle), n, inbin);
+				fclose(inbin);
+			}
 		}
 
 		++counter;

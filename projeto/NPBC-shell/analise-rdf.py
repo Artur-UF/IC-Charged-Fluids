@@ -14,7 +14,7 @@ class Particle:
 		self.gaussian = list[10:-1]
 
 
-def binstolist(path, passos):
+def binstolist(path, n, passos):
 	struct_fmt = '=3d3d3dd3d'
 	struct_len = struct.calcsize(struct_fmt)
 	struct_unpack = struct.Struct(struct_fmt).unpack_from
@@ -25,7 +25,7 @@ def binstolist(path, passos):
 
 	for frame in range(passos):
 		with open(os.path.join(path, f'passos/{frame+1}.bin'), "rb") as f:
-			for i in range(100):
+			for i in range(n):
 				data = f.read(struct_len)
 				s = struct_unpack(data)
 				frames[frame].append(Particle(s))
@@ -33,11 +33,12 @@ def binstolist(path, passos):
 
 
 
-def rdf(carga, rs, ri, todas, size=10, g=(), ngr=0, switch=0):
-	n = len(todas)
-	nbins = 150 #int(rs-ri) * size	# Número de bins em função do tamanho do sistema
-	delg = (rs-ri)/(nbins)	# Tamanho dos bins
-	rho = n/((4/3)*np.pi*(rs**3 - ri**3))
+def rdf(carga, rs, ri, pos, neg, todas, size=10, g=(), ngr=0, switch=0):
+	nbins = int(rs-ri) * size				# Número de bins em função do tamanho do sistema
+	delg = (rs-ri)/(nbins)					# Tamanho dos bins
+	rhopos = pos/((4/3)*np.pi*(rs**3 - ri**3))
+	rhoneg = neg/((4/3)*np.pi*(rs**3 - ri**3))
+	
 	
 	if switch == 0:
 		g = np.zeros(nbins)
@@ -55,10 +56,16 @@ def rdf(carga, rs, ri, todas, size=10, g=(), ngr=0, switch=0):
 		return ngr, g
 	
 	if switch == 2:
-		for i in range(nbins):
-			vb = ((i+1)**3 - i**3)*delg**3
-			nid = (4/3)*np.pi*vb*rho
-			g[i] /= (ngr*n*nid)	
+		if carga == 1:
+			for i in range(nbins):
+				vb = ((i+1)**3 - i**3)*delg**3
+				nid = (4/3)*np.pi*vb*rhopos
+				g[i] /= (ngr*pos*nid)
+		if carga == -1:				
+			for i in range(nbins):
+				vb = ((i+1)**3 - i**3)*delg**3
+				nid = (4/3)*np.pi*vb*rhoneg
+				g[i] /= (ngr*neg*nid)
 		return ngr, g
 			
 	
@@ -66,41 +73,44 @@ def rdf(carga, rs, ri, todas, size=10, g=(), ngr=0, switch=0):
 lb = 7.2
 rs = 20
 ri = rs/2
-tf = 40
+tf = 555
+pos = 60
+neg = 30
+n = pos + neg
 size = 10
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}'
-nframes = 1500
+nframes = 1000
 
-frames = binstolist(path, nframes)
+frames = binstolist(path, n, nframes)
 
 # Função para as partículas positivas
-ngr1, g1 = rdf(1, rs, ri, frames[0], size=size)
+ngr1, g1 = rdf(1, rs, ri, pos, neg, frames[0], size=size)
 
 for fr in range(nframes):
-	ngr1, g1 = rdf(1, rs, ri, frames[fr], size=size, g=g1, ngr=ngr1, switch=1)
+	ngr1, g1 = rdf(1, rs, ri, pos, neg, frames[fr], size=size, g=g1, ngr=ngr1, switch=1)
 
-ngr1, g1 = rdf(1, rs, ri, frames[-1], size=size, g=g1, ngr=ngr1, switch=2)
+ngr1, g1 = rdf(1, rs, ri, pos, neg, frames[-1], size=size, g=g1, ngr=ngr1, switch=2)
 
 
 
 # Função para as partículas negativas
-ngr2, g2 = rdf(2, rs, ri, frames[0], size=size)
+ngr2, g2 = rdf(2, rs, ri, pos, neg, frames[0], size=size)
 
 for fr in range(nframes):
-	ngr2, g2 = rdf(-1, rs, ri, frames[fr], size=size, g=g2, ngr=ngr2, switch=1)
+	ngr2, g2 = rdf(-1, rs, ri, pos, neg, frames[fr], size=size, g=g2, ngr=ngr2, switch=1)
 
-ngr2, g2 = rdf(-1, rs, ri, frames[-1], size=size, g=g2, ngr=ngr2, switch=2)
+ngr2, g2 = rdf(-1, rs, ri, pos, neg, frames[-1], size=size, g=g2, ngr=ngr2, switch=2)
 
 
 r = np.linspace(ri, rs, len(g1))
 
-plt.plot(r, g1, label='Na')
-plt.plot(r, g2, label='Cl')
+plt.plot(r, g1, label=r'$60*Na^{+}$')
+plt.plot(r, g2, label=r'$30*Cl^{-}$')
 plt.xlabel('r')
 plt.ylabel('g(r)')
-plt.title('Função de Distribuição Radial: g(r)\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | passos = {nframes}')
+plt.title('Densidade Radial: g(r)\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | snaps = {nframes}')
 plt.grid()
 plt.legend()
 plt.savefig(os.path.join(path, 'rdf.png'), dpi=200)

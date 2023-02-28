@@ -82,8 +82,7 @@ void gerador(particle *todas, int n, double rs, double ri, double d){
 		}
 	}
 	
-	n = n+1;
-	for(int i = 0; i < n; ++i){
+	for(int i = 0; i <= n; ++i){
 		todas[i].v[0] = 0.;
 		todas[i].v[1] = 0.;
 		todas[i].v[2] = 0.;
@@ -91,14 +90,14 @@ void gerador(particle *todas, int n, double rs, double ri, double d){
 		todas[i].f[0] = 0.;
 		todas[i].f[1] = 0.;
 		todas[i].f[2] = 0.;
-		if(i < (n + abs(CENT))/2){
+		if(i < (n - CENT)/2){
 			todas[i].carga = NA;
 		}
-		if(i >= (n + abs(CENT))/2){
+		if(i >= (n - CENT)/2){
 			todas[i].carga = CL;
 		}
 	}
-	todas[n-1].carga = CENT;
+	todas[n].carga = CENT;
 }
 
 
@@ -111,10 +110,10 @@ void ciFile(particle *todas, int n, double rs, double tf, double lb){
 	fprintf (ark, "%i\n\n", n+1);
 	
 	for (int i = 0; i <= n; ++i) {
-		if (i < (n + abs(CENT))/2 && i != n){
+		if (i < (n - CENT)/2 && i != n){
 			fprintf (ark, "Na ");
 		}
-		if(i >= (n + abs(CENT))/2 && i != n){
+		if(i >= (n - CENT)/2 && i != n){
 			fprintf (ark, "Cl ");
 		}
 		if(i == n){
@@ -271,8 +270,8 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	
 	
 	int contbin = 0;								// Conta o número de frames a serem salvos em .bin
-	int framesbin = 100;							// O número de frames a serem salvos para a animação
-	int tcorrel = 1;								// Tempo de correlação, separação entre snaps
+	int framesbin = 1000;							// O número de frames a serem salvos para a animação
+	int tcorrel = 100;								// Tempo de correlação, separação entre snaps
 	double limitebin = tf/dt - (framesbin*(tcorrel+1) + 1);	// Número do passo a começar a salvar para arquivo .bin
 	
 	
@@ -378,10 +377,10 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 		if (counter >= limiteanim && counter < limiteanim + framesanim){
 			fprintf(in, "%d\n\n", n+1);
 			for (int i = 0; i <= n; ++i){
-				if (i < (n + abs(CENT))/2 && i != n){
+				if (i < (n - CENT)/2 && i != n){
 					fprintf (in, "Na ");
 				}
-				if(i >= (n + abs(CENT))/2 && i != n){
+				if(i >= (n - CENT)/2 && i != n){
 					fprintf (in, "Cl ");
 				}
 				if(i  == n){

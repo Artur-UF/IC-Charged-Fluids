@@ -74,13 +74,14 @@ lb = 7.2
 rs = 20
 ri = rs/2
 tf = 555
-pos = 60
-neg = 30
-n = pos + neg
+n = 90
+ccentral = -30
+pos = int((n-ccentral)/2)
+neg = int(n-pos)
 size = 10
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}'
+path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}-1'
 nframes = 1000
 
 frames = binstolist(path, n, nframes)
@@ -106,34 +107,12 @@ ngr2, g2 = rdf(-1, rs, ri, pos, neg, frames[-1], size=size, g=g2, ngr=ngr2, swit
 
 r = np.linspace(ri, rs, len(g1))
 
-plt.plot(r, g1, label=r'$60*Na^{+}$')
-plt.plot(r, g2, label=r'$30*Cl^{-}$')
+plt.plot(r, g1, label=f'{pos:.0f}*'+r'$Na^{+}$')
+plt.plot(r, g2, label=f'{neg:.0f}*'+r'$Cl^{-}$')
 plt.xlabel('r')
 plt.ylabel('g(r)')
-plt.title('Densidade Radial: g(r)\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | snaps = {nframes}')
+plt.title('Densidade Radial: g(r)\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
 plt.grid()
 plt.legend()
 plt.savefig(os.path.join(path, 'rdf.png'), dpi=200)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

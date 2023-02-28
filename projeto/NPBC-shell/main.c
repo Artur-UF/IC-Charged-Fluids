@@ -7,9 +7,12 @@ dinâmica de Lennard-Jones com forças eletrostáticas entre partículas.
 
 Esse programa utiliza os parâmetros para realizar a dinâmica e ao final cria uma pasta cujo título
 identifica qual o raio da esfera, tempo total da simulação e Lambda B utilizados como parâmetros.
-Dentro dessa pasta são criados o arquivo de condições iniciais, com as posições iniciais das partículas, 
-um arquivo para a animação no Jmol com diversos frames e um arquivo com informações gerais sobre a simulação
-rodada.
+Dentro dessa pasta são criados o arquivo de condições iniciais, com as posições iniciais e cargas das partículas, 
+um arquivo para a animação no Jmol com diversos frames em .txt, uma pasta com snapshots em .bin para análise 
+e um arquivo com informações gerais sobre a simulação rodada.
+
+Configurações de salvar snapshots estão dentro da função dinamica() no arquivo func.c, e devem ser determinadas
+através das variáveis definidas antes do loop principal. Tem as opções de .txt e .bin.
 */
 
 #include <stdio.h>
@@ -27,7 +30,7 @@ rodada.
 #define FRIC 0.1	// Coeficiente de fricção
 #define LB (7.20)	// Lambda B
 #define DT 0.005	// Delta de tempo
-#define TF 5.	// Tempo final
+#define TF 555.	// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	
 int main (){
@@ -84,6 +87,9 @@ int main (){
 	fprintf(infos, "#define LB %.1lf	// Lambda B\n", LB);
 	fprintf(infos, "#define DT %.4lf	// Delta de tempo\n", DT);
 	fprintf(infos, "#define TF %.2lf	// Tempo final\n", TF);
+	fprintf(infos, "Carga central = %.1f\n",  CENT);
+	fprintf(infos, "Partículas positivas = %.0f\n", (N-CENT)/2);
+	fprintf(infos, "Partículas negativas = %.0f\n", N-(N-CENT)/2);
 	fprintf(infos, "Número de passos = %.0lf\n", TF/DT);
 	fprintf(infos, "Tempo de execução: %.3lfs\n", time);
 	fprintf(infos, "Seed aleatória: %d\n", seed);

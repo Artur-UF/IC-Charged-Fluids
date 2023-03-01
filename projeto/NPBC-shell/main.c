@@ -23,12 +23,12 @@ através das variáveis definidas antes do loop principal. Tem as opções de .t
 #include "func.h"
 
 //*-*-*-*-*-*-*-*-*-*-*PARÂMETROS*-*-*-*-*-*-*-*-*-
-#define D 4.		// Diametro das particulas
-#define RS (20.)	// Raio da esfera externa
+#define D 1.		// Diametro das particulas
+#define RS (10.*D)	// Raio da esfera externa
 #define RI (RS/2.)	// Raio da esfera interna
 #define N 90		// Número de partículas
 #define FRIC 0.1	// Coeficiente de fricção
-#define LB (7.20)	// Lambda B
+#define LB (1.8)	// Lambda B
 #define DT 0.005	// Delta de tempo
 #define TF 555.	// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

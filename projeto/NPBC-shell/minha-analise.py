@@ -32,7 +32,7 @@ def binstolist(path, n, passos):
 	return frames
 
 
-def dprad(carga, rs, ri, todas, nbins, bins=(), conts=[0, 0], switch=0):
+def dprad(carga, rs, ri, todas, nbins, conts, bins=(), switch=0):
 	ticks, delbin = np.linspace(ri, rs, nbins+1, retstep=True)
 	
 	if switch == 0:
@@ -71,30 +71,37 @@ nframes = 1000
 frames = binstolist(path, n, nframes)
 
 # Linha para cargas POSITIVAS
-conts1, bins1 = dprad(1, rs, ri, frames[0], nbins)
+conts1, bins1 = dprad(1, rs, ri, frames[0], nbins, [0, 0])
 
 for fr in range(nframes):
-	conts1, bins1 = dprad(1, rs, ri, frames[fr], nbins, bins=bins1, conts=conts1, switch=1)
+	conts1, bins1 = dprad(1, rs, ri, frames[fr], nbins, conts1, bins=bins1, switch=1)
 
-conts1, bins1 = dprad(1, rs, ri, frames[-1], nbins, bins=bins1, conts=conts1, switch=2)
-
+conts1, bins1 = dprad(1, rs, ri, frames[-1], nbins, conts1, bins=bins1, switch=2)
 
 # Linha para cargas NEGATIVAS
-conts2, bins2 = dprad(-1, rs, ri, frames[0], nbins)
+conts2, bins2 = dprad(-1, rs, ri, frames[0], nbins, [0, 0])
 
 for fr in range(nframes):
-	conts2, bins2 = dprad(-1, rs, ri, frames[fr], nbins, bins=bins2, conts=conts2, switch=1)
+	conts2, bins2 = dprad(-1, rs, ri, frames[fr], nbins, conts2, bins=bins2, switch=1)
 
-conts2, bins2 = dprad(-1, rs, ri, frames[-1], nbins, bins=bins2, conts=conts2, switch=2)
+conts2, bins2 = dprad(-1, rs, ri, frames[-1], nbins, conts2, bins=bins2, switch=2)
 
+print(20*'*-')
+print('Na+')
+print(f'Ptot = {sum(bins1)}')
+print(f'n = {conts1[1]}')
+print(20*'*-')
+print('Cl-')
+print(f'Ptot = {sum(bins2)}')
+print(f'n = {conts2[1]}')
 
 r = np.linspace(ri, rs, len(bins1))
 
-plt.plot(r, bins1, label=f'{pos:.0f}*'+r'$Na^{+}$')
-plt.plot(r, bins2, label=f'{neg:.0f}*'+r'$Cl^{-}$')
+plt.plot(r, bins1, 'r-*', markersize=5, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
+plt.plot(r, bins2, 'g-*', markersize=5, linewidth=1, label=f'{neg:.0f}*'+r'$Cl^{-}$')
 plt.xlabel('r')
-plt.ylabel('g(r)')
-plt.title('Densidade Radial: g(r)\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
+plt.ylabel('%(r)')
+plt.title('Densidade de Probabilidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
 plt.grid()
 plt.legend()
 plt.savefig(os.path.join(path, 'rdf.png'), dpi=200)

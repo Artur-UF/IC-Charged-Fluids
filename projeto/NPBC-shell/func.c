@@ -265,7 +265,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	int counter = 0;								// Conta o número e passos
 	
 	int contanim = 0;								// Conta o número de frames a serem salvos em .txt
-	int framesanim = 100;							// O número de frames a serem salvos em .txt
+	int framesanim = 500;							// O número de frames a serem salvos em .txt
 	double limiteanim = tf/dt - (framesanim + 1);	// Número do passo a começar a salvar a animação
 	
 	

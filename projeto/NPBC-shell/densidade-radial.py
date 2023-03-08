@@ -33,13 +33,12 @@ def binstolist(path, n, passos):
 
 
 def dprad(carga, rs, ri, todas, nbins, conts, bins=(), switch=0):
-	ticks, delbin = np.linspace(ri, rs, nbins+1, retstep=True)
-	
 	if switch == 0:
 		bins = np.zeros(nbins)	
 		return conts, bins
 	
 	if switch == 1:
+		delbin = (rs-ri)/nbins
 		conts[0] += 1
 		for p in todas:
 			if p.carga == carga:
@@ -49,7 +48,10 @@ def dprad(carga, rs, ri, todas, nbins, conts, bins=(), switch=0):
 		return conts, bins
 	
 	if switch == 2:
-		bins /= conts[1]
+		ticks, delbin = np.linspace(ri, rs, nbins+1, retstep=True)	
+		v1 = (4/3)*np.pi
+		for i in range(nbins):
+			bins[i] /= conts[0]*v1*(ticks[i+1]**3 - ticks[i]**3)
 		return conts, bins
 
 
@@ -86,25 +88,16 @@ for fr in range(nframes):
 
 conts2, bins2 = dprad(-1, rs, ri, frames[-1], nbins, conts2, bins=bins2, switch=2)
 
-print(20*'*-')
-print('Na+')
-print(f'Ptot = {sum(bins1)}')
-print(f'n = {conts1[1]}')
-print(20*'*-')
-print('Cl-')
-print(f'Ptot = {sum(bins2)}')
-print(f'n = {conts2[1]}')
-
 r = np.linspace(ri, rs, len(bins1))
 
 plt.plot(r, bins1, 'r-*', markersize=5, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
 plt.plot(r, bins2, 'g-*', markersize=5, linewidth=1, label=f'{neg:.0f}*'+r'$Cl^{-}$')
 plt.xlabel('r')
-plt.ylabel('%(r)')
-plt.title('Densidade de Probabilidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
+plt.ylabel(r'$\rho(r)$')
+plt.title('Densidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
 plt.grid()
 plt.legend()
-plt.savefig(os.path.join(path, 'rdf.png'), dpi=200)
+plt.savefig(os.path.join(path, 'drad.png'), dpi=200)
 
 
 

@@ -24,7 +24,7 @@ através das variáveis definidas antes do loop principal. Tem as opções de .t
 
 //*-*-*-*-*-*-*-*-*-*-*PARÂMETROS*-*-*-*-*-*-*-*-*-
 #define D 1.		// Diametro das particulas
-#define RS (10.*D)	// Raio da esfera externa
+#define RS (20.)	// Raio da esfera externa
 #define RI (RS/2.)	// Raio da esfera interna
 #define N 90		// Número de partículas
 #define FRIC 0.1	// Coeficiente de fricção

@@ -57,7 +57,7 @@ def dprad(carga, rs, ri, todas, nbins, conts, bins=(), switch=0):
 
 #-*-*-*-*-*-*-PARÂMETROS*-*-*-*-*-*-*-*
 lb = 1.8
-rs = 10
+rs = 20
 ri = rs/2
 tf = 555
 n = 90
@@ -90,14 +90,21 @@ conts2, bins2 = dprad(-1, rs, ri, frames[-1], nbins, conts2, bins=bins2, switch=
 
 r = np.linspace(ri, rs, len(bins1))
 
-plt.plot(r, bins1, 'r-*', markersize=5, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
+# Comparação
+x1, y1 = np.loadtxt('teoria-mais.dat', unpack=True)
+x2, y2 = np.loadtxt('teoria-menos.dat', unpack=True)
+plt.plot(x1, y1, 'k')
+plt.plot(x2, y2, 'r')
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-
+
+plt.plot(r, bins1, 'b-*', markersize=5, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
 plt.plot(r, bins2, 'g-*', markersize=5, linewidth=1, label=f'{neg:.0f}*'+r'$Cl^{-}$')
 plt.xlabel('r')
 plt.ylabel(r'$\rho(r)$')
 plt.title('Densidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
 plt.grid()
 plt.legend()
-plt.savefig(os.path.join(path, 'drad.png'), dpi=200)
+plt.savefig(os.path.join(path, 'drad-comp.png'), dpi=200)
 
 
 

@@ -1,0 +1,14 @@
+#define D 1.0		// Diametro das particulas
+#define RS 20.0	// Raio da externo da esfera
+#define RI 10.0	// Raio da interno da esfera
+#define N 90		// Número de partículas
+#define FRIC 0.1	// Coeficiente de fricção
+#define LB 1.8	// Lambda B
+#define DT 0.0050	// Delta de tempo
+#define TF 555.00	// Tempo final
+Carga central = 30.0
+Partículas positivas = 30
+Partículas negativas = 60
+Número de passos = 111000
+Tempo de execução: 62.468s
+Seed aleatória: 1678321476

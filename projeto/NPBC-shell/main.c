@@ -30,7 +30,7 @@ através das variáveis definidas antes do loop principal. Tem as opções de .t
 #define FRIC 0.1	// Coeficiente de fricção
 #define LB (1.8)	// Lambda B
 #define DT 0.005	// Delta de tempo
-#define TF 555.	// Tempo final
+#define TF 5130.	// Tempo final
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	
 int main (){
@@ -49,7 +49,7 @@ int main (){
 	printf("Volume da esfera: %lf\nVolume das partículas: %lf\n", volT, volP);
 
 	// Criando o arquivo de saída da dinâmica
-	char pasta[35], lixo[35], arkinfo[35], cilixo[35];
+	char pasta[45], lixo[45], arkinfo[45], cilixo[45];
 
 	sprintf(pasta, "LJ_RS%.1lf_TF%.1lf_LB%.1lf", RS, TF, LB);
 	if (mkdir(pasta, 0777) == -1){

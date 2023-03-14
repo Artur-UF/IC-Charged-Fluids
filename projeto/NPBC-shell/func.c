@@ -131,7 +131,7 @@ void ciFile(particle *todas, int n, double rs, double tf, double lb){
 void forcas(particle *todas, int n, double d, double lb){
 	// Constantes para o Lennard-Jones
 	double cut, c5, dx, dy, dz, dist, fx = 0, fy = 0, fz = 0;
-	cut = pow(2., 1./6.); // Esse corte é pequeno por isso não gera força imadiatamente
+	cut = pow(2., 1./6.); // Esse corte é pequeno por isso não gera força imediatamente
 	
 	// Constantes para a Força eletrostática
 	double pfel, cadm = lb/d;	// Constante adimensionalizadora
@@ -162,16 +162,6 @@ void forcas(particle *todas, int n, double d, double lb){
 
 				// Atribuindo as componentes das forças
 				pfel = cadm*(todas[i].carga*todas[j].carga)/(pow(dist, 3)); // parametro da força eletrostática
-				
-				/* Debugging
-				if(todas[j].carga == CENT){
-					printf("(central = -30, %d.c  = %.0f)\np: ", i, todas[i].carga);
-					for (int k = 0; k < 3; ++k){
-						printf("%.5lf ", todas[i].p[k]);
-					}
-					printf("\nf: %.5f %.5f %.5f\n", pfel/dx, pfel/dy, pfel/dz);
-					printf("--------------------------------------------------------------------------------\n");
-				}*/				
 				
 				// Somando as forças de Lennard-Jones
 				fx += c5*dx;
@@ -255,7 +245,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	dt2 = dt*dt;
 	
 	// Aqui cria o arquivo que será usado para a animação
-	char passo[35];
+	char passo[45];
 	sprintf(passo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/animLJ.txt", rs, tf, lb);
 	
 	FILE *in = fopen(passo, "w");
@@ -270,13 +260,13 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	
 	
 	int contbin = 0;								// Conta o número de frames a serem salvos em .bin
-	int framesbin = 1000;							// O número de frames a serem salvos para a animação
+	int framesbin = 10000;							// O número de frames a serem salvos para a animação
 	int tcorrel = 100;								// Tempo de correlação, separação entre snaps
 	double limitebin = tf/dt - (framesbin*(tcorrel+1) + 1);	// Número do passo a começar a salvar para arquivo .bin
 	
 	
 	// Cria a pasta para os passos
-	char passos[35], npasso[35];
+	char passos[45], npasso[45];
 	
 	sprintf(passos, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/passos", rs, tf, lb);
 	if (mkdir(passos, 0777) == -1){
@@ -400,7 +390,7 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 				
 				if(contbin == 1) printf("Passo (%d) | arquivo (%d)\n", counter, contbin);
 				
-				char passo[35];
+				char passo[45];
 				sprintf(passo, "LJ_RS%.1lf_TF%.1lf_LB%.1lf/passos/%d.bin", rs, tf, lb, contbin);
 				
 				FILE *inbin = fopen(passo, "wb");

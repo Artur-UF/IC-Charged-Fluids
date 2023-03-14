@@ -59,16 +59,16 @@ def dprad(carga, rs, ri, todas, nbins, conts, bins=(), switch=0):
 lb = 1.8
 rs = 20
 ri = rs/2
-tf = 555
+tf = 5130
 n = 90
 ccentral = 30
 pos = int((n-ccentral)/2)
 neg = int(n-pos)
-nbins = 50
+nbins = 100
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}'
-nframes = 1000
+nframes = 10000
 
 frames = binstolist(path, n, nframes)
 
@@ -88,14 +88,38 @@ for fr in range(nframes):
 
 conts2, bins2 = dprad(-1, rs, ri, frames[-1], nbins, conts2, bins=bins2, switch=2)
 
-r = np.linspace(ri, rs, len(bins1))
+r, delr = np.linspace(ri, rs, len(bins1), retstep=True)
 
 # Comparação
-x1, y1 = np.loadtxt('teoria-mais.dat', unpack=True)
-x2, y2 = np.loadtxt('teoria-menos.dat', unpack=True)
+x1, y1, y2 = np.loadtxt('dens.dat', unpack=True)
+
+xr, delxr = np.linspace(x1[0], x1[-1], len(x1), retstep=True)
+
 plt.plot(x1, y1, 'k')
-plt.plot(x2, y2, 'r')
+plt.plot(x1, y2, 'r')
+
+p_pos_t = 0
+for ri, rho in zip(x1, y1):
+	p_pos_t += rho*(ri**2)*delxr
+p_pos_t *= 4*np.pi
+
+p_neg_t = 0
+for ri, rho in zip(x1, y2):
+	p_neg_t += rho*(ri**2)*delxr
+p_neg_t *= 4*np.pi
+
+
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-
+
+p_pos = 0
+for ri, rho in zip(r, bins1):
+	p_pos += rho*(ri**2)*delr
+p_pos *= 4*np.pi
+
+p_neg = 0
+for ri, rho in zip(r, bins2):
+	p_neg += rho*(ri**2)*delr
+p_neg *= 4*np.pi
 
 plt.plot(r, bins1, 'b-*', markersize=5, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
 plt.plot(r, bins2, 'g-*', markersize=5, linewidth=1, label=f'{neg:.0f}*'+r'$Cl^{-}$')
@@ -105,7 +129,7 @@ plt.title('Densidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {c
 plt.grid()
 plt.legend()
 plt.savefig(os.path.join(path, 'drad-comp.png'), dpi=200)
-
+print(f'Número de partículas:\n\tMinhas\tTeoria\nCla+ = {p_pos:.3f}\t{p_pos_t:.3f}\nCl- = {p_neg:.3f}\t{p_neg_t:.3f}')
 
 
 

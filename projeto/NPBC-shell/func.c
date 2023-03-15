@@ -137,7 +137,7 @@ void forcas(particle *todas, int n, double d, double lb){
 	double pfel, cadm = lb/d;	// Constante adimensionalizadora
 	
 	// Zerando as forças antes de recalcular
-	for (int i = 0; i < n; ++i){
+	for (int i = 0; i <= n; ++i){
 		todas[i].f[0] = 0.0;
 		todas[i].f[1] = 0.0;
 		todas[i].f[2] = 0.0;
@@ -158,7 +158,9 @@ void forcas(particle *todas, int n, double d, double lb){
 					if (dist <= 0.8){
 						c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13))/dist;
 					}
+					if(i == n || j == n) c5 = 0.;
 				}
+				
 
 				// Atribuindo as componentes das forças
 				pfel = cadm*(todas[i].carga*todas[j].carga)/(pow(dist, 3)); // parametro da força eletrostática

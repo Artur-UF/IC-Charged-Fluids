@@ -44,7 +44,15 @@ def dprad(carga, rs, ri, todas, nbins, conts, bins=(), switch=0):
 			if p.carga == carga:
 				conts[1] += 1
 				rp = np.sqrt(p.p[0]**2 + p.p[1]**2 + p.p[2]**2) - ri
-				bins[int(rp/delbin)] += 1				
+				indice = int(rp/delbin)
+				if indice <= nbins and indice >= 0:
+					bins[indice] += 1
+				if indice > nbins:
+					bins[-1] += 1
+					print('particula fora: {index(p)}')
+				if indice < 0:
+					bins[0] += 1
+					print('particula dentro: {index(p)}')
 		return conts, bins
 	
 	if switch == 2:
@@ -60,11 +68,11 @@ lb = 1.8
 rs = 20
 ri = rs/2
 tf = 5130
-n = 90
-ccentral = 30
+n = 110
+ccentral = 50
 pos = int((n-ccentral)/2)
 neg = int(n-pos)
-nbins = 100
+nbins = 90
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}'
@@ -91,12 +99,14 @@ conts2, bins2 = dprad(-1, rs, ri, frames[-1], nbins, conts2, bins=bins2, switch=
 r, delr = np.linspace(ri, rs, len(bins1), retstep=True)
 
 # Comparação
-x1, y1, y2 = np.loadtxt('dens.dat', unpack=True)
+#x1, y1, y2 = np.loadtxt('dens.dat', unpack=True)
+x1, y1 = np.loadtxt('testpos.dat', unpack=True)
+x2, y2 = np.loadtxt('testneg.dat', unpack=True)
 
 xr, delxr = np.linspace(x1[0], x1[-1], len(x1), retstep=True)
 
 plt.plot(x1, y1, 'k')
-plt.plot(x1, y2, 'r')
+plt.plot(x2, y2, 'r')
 
 p_pos_t = 0
 for ri, rho in zip(x1, y1):
@@ -121,8 +131,8 @@ for ri, rho in zip(r, bins2):
 	p_neg += rho*(ri**2)*delr
 p_neg *= 4*np.pi
 
-plt.plot(r, bins1, 'b-*', markersize=5, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
-plt.plot(r, bins2, 'g-*', markersize=5, linewidth=1, label=f'{neg:.0f}*'+r'$Cl^{-}$')
+plt.plot(r, bins1, 'b-+', markersize=4, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
+plt.plot(r, bins2, 'g-+', markersize=4, linewidth=1, label=f'{neg:.0f}*'+r'$Cl^{-}$')
 plt.xlabel('r')
 plt.ylabel(r'$\rho(r)$')
 plt.title('Densidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')

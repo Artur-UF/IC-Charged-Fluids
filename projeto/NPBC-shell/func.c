@@ -130,7 +130,7 @@ void ciFile(particle *todas, int n, double rs, double tf, double lb){
 
 void forcas(particle *todas, int n, double d, double lb){
 	// Constantes para o Lennard-Jones
-	double cut, c5, dx, dy, dz, dist, fx = 0, fy = 0, fz = 0;
+	double cut, c5, dx, dy, dz, dist, fx = 0., fy = 0., fz = 0.;
 	cut = pow(2., 1./6.); // Esse corte é pequeno por isso não gera força imediatamente
 	
 	// Constantes para a Força eletrostática
@@ -156,19 +156,19 @@ void forcas(particle *todas, int n, double d, double lb){
 				if (dist<cut){
 					c5 = 5.*( - 6./pow(dist,7) + 12./pow(dist,13));
 					if (dist <= 0.8){
-						c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13))/dist;
+						c5 = 5.*( - 6./pow(0.8,7) + 12./pow(0.8,13));
 					}
 					if(i == n || j == n) c5 = 0.;
 				}
 				
 
 				// Atribuindo as componentes das forças
-				pfel = cadm*(todas[i].carga*todas[j].carga)/(pow(dist, 3)); // parametro da força eletrostática
+				pfel = cadm*(todas[i].carga*todas[j].carga)/(pow(dist, 3.)); // parametro da força eletrostática
 				
 				// Somando as forças de Lennard-Jones
-				fx += c5*dx;
-				fy += c5*dy;
-				fz += c5*dz;
+				fx += c5*dx*(1./dist);
+				fy += c5*dy*(1./dist);
+				fz += c5*dz*(1./dist);
 				// Somando as forças Eletrostáticas
 				fx += pfel*dx;
 				fy += pfel*dy;
@@ -183,9 +183,9 @@ void forcas(particle *todas, int n, double d, double lb){
 				todas[j].f[1] += -fy;
 				todas[j].f[2] += -fz;
 				
-				fx = 0;
-				fy = 0;
-				fz = 0;
+				fx = 0.;
+				fy = 0.;
+				fz = 0.;
 		}
 	}
 }
@@ -235,15 +235,15 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 	double rrs = rs - d/2., rri = ri + d/2.;		// Raios relativos ao centro das particulas
 	
 	//Loop Temporal
-	double con, c0, c1, c2, desv_r, desv_v, cvv, cvv2, dt2, ds;
+	double con, c0, c1, c2, desv_r, desv_v, cvv, cvv2, dt2, ds, xold, yold, zold;
 	con = fric*dt;
 	c0 = exp(-con);
-	c1 = (1-c0)/con;
-	c2 = (1-c1)/con;
-	desv_r = dt*sqrt((1/con) * (2 - ((1/con) * (3 - (4*c0) + (c0*c0)))));
-	desv_v = sqrt(1-(c0*c0));
-	cvv = (dt/con/desv_v/desv_r) * (1-c0)*(1-c0);
-	cvv2 = sqrt(1 - (cvv*cvv));
+	c1 = (1.-c0)/con;
+	c2 = (1.-c1)/con;
+	desv_r = dt*sqrt((1./con) * (2. - ((1./con) * (3. - (4.*c0) + (c0*c0)))));
+	desv_v = sqrt(1.-(c0*c0));
+	cvv = (dt/con/desv_v/desv_r) * (1.-c0)*(1.-c0);
+	cvv2 = sqrt(1. - (cvv*cvv));
 	dt2 = dt*dt;
 	
 	// Aqui cria o arquivo que será usado para a animação
@@ -289,6 +289,10 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 			todas[j].gaussian[0] = gausran();
 			todas[j].gaussian[1] = gausran();
 			todas[j].gaussian[2] = gausran();
+			
+			xold = todas[j].p[0];
+			yold = todas[j].p[1];
+			zold = todas[j].p[2];
 
 			// Passo no espaço
 			todas[j].p[0] += c1 * dt * todas[j].v[0] + c2 * dt2 * todas[j].f[0] + todas[j].gaussian[0] * desv_r;
@@ -297,56 +301,19 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 			
 			// NPBC
 			ds = dist(todas[j].p[0], todas[j].p[1], todas[j].p[2]);
-			if(ds >= rrs){ // Verificando borda exterior
-				// Verificando o o sinal de x
-				if(todas[j].p[0] > 0 && todas[j].v[0] > 0){
-					todas[j].v[0] *= -1.;
-				}
-				if(todas[j].p[0] < 0 && todas[j].v[0] < 0){
-					todas[j].v[0] *= -1.;
-				}
-				
-				// Verificando o sinal de y
-				if(todas[j].p[1] > 0 && todas[j].v[1] > 0){
-					todas[j].v[1] *= -1.;
-				}
-				if(todas[j].p[1] < 0 && todas[j].v[1] < 0){
-					todas[j].v[1] *= -1.;
-				}
-				
-				// Verificando o sinal de z
-				if(todas[j].p[2] > 0 && todas[j].v[2] > 0){
-					todas[j].v[2] *= -1.;
-				}
-				if(todas[j].p[2] < 0 && todas[j].v[2] < 0){
-					todas[j].v[2] *= -1.;
-				}
+			if(ds >= rrs || ds <= rri){
+				// Voltando a posição antiga
+				todas[j].p[0] = xold;
+				todas[j].p[1] = yold;
+				todas[j].p[2] = zold;
+				// Invertendo a velocidade
+				todas[j].v[0] *= -1.;
+				todas[j].v[1] *= -1.;
+				todas[j].v[2] *= -1.;
 			}
-			if(ds <= rri){ // Verificando borda interior
-				// Verificando o o sinal de x
-				if(todas[j].p[0] > 0 && todas[j].v[0] < 0){
-					todas[j].v[0] *= -1.;
-				}
-				if(todas[j].p[0] < 0 && todas[j].v[0] > 0){
-					todas[j].v[0] *= -1.;
-				}
-				
-				// Verificando o sinal de y
-				if(todas[j].p[1] > 0 && todas[j].v[1] < 0){
-					todas[j].v[1] *= -1.;
-				}
-				if(todas[j].p[1] < 0 && todas[j].v[1] > 0){
-					todas[j].v[1] *= -1.;
-				}
-				
-				// Verificando o sinal de z
-				if(todas[j].p[2] > 0 && todas[j].v[2] < 0){
-					todas[j].v[2] *= -1.;
-				}
-				if(todas[j].p[2] < 0 && todas[j].v[2] > 0){
-					todas[j].v[2] *= -1.;
-				}
-			}
+			xold = 0.;
+			yold = 0.;
+			zold = 0.;
 		}
 		
 		// Cálculo final das forças
@@ -403,6 +370,8 @@ void dinamica(particle *todas, int n, double rs, double ri, double d, double fri
 		}
 
 		++counter;
+		printf("\rPasso número: %d", counter);
+		fflush(stdout);
 	}
 	fclose(in); // isso eu  só uso quando to salvando em .txt
 

@@ -1,6 +1,6 @@
 #define NA 1.			// Carga do sódio
 #define CL -1.			// Carga do Cloro
-#define CENT 30.		// Carga central
+#define CENT 50.		// Carga central
 #define CHECKPOINT 10.
 
 typedef struct {

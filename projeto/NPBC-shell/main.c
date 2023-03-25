@@ -26,8 +26,8 @@ através das variáveis definidas antes do loop principal. Tem as opções de .t
 #define D 1.		// Diametro das particulas
 #define RS (20.)	// Raio da esfera externa
 #define RI (RS/2.)	// Raio da esfera interna
-#define N 90		// Número de partículas
-#define FRIC 0.1	// Coeficiente de fricção
+#define N 110		// Número de partículas
+#define FRIC 0.05	// Coeficiente de fricção
 #define LB (1.8)	// Lambda B
 #define DT 0.005	// Delta de tempo
 #define TF 5130.	// Tempo final
@@ -83,8 +83,8 @@ int main (){
 	fprintf(infos, "#define RS %.1lf	// Raio da externo da esfera\n", RS);
 	fprintf(infos, "#define RI %.1lf	// Raio da interno da esfera\n", RI);	
 	fprintf(infos, "#define N %d		// Número de partículas\n", N);
-	fprintf(infos, "#define FRIC %.1lf	// Coeficiente de fricção\n", FRIC);
-	fprintf(infos, "#define LB %.1lf	// Lambda B\n", LB);
+	fprintf(infos, "#define FRIC %.4lf	// Coeficiente de fricção\n", FRIC);
+	fprintf(infos, "#define LB %.2lf	// Lambda B\n", LB);
 	fprintf(infos, "#define DT %.4lf	// Delta de tempo\n", DT);
 	fprintf(infos, "#define TF %.2lf	// Tempo final\n", TF);
 	fprintf(infos, "Carga central = %.1f\n",  CENT);

@@ -61,9 +61,17 @@ void gerador(particle *todas, int n, double rs, double ri, double d){
 	
 	
 	// Primeira partícula gerada
-	todas[0].p[0] = uniform(-(rrs + rri)/2., (rrs + rri)/2.);
-	todas[0].p[1] = uniform(-(rrs + rri)/2., (rrs + rri)/2.);
-	todas[0].p[2] = uniform(-(rrs + rri)/2., (rrs + rri)/2.);	
+	double testx = uniform(-rrs, rrs);
+	double testy = uniform(-rrs, rrs);
+	double testz = uniform(-rrs, rrs);
+	while(dist(testx, testy, testz) > rrs || dist(testx, testy, testz) < rri){
+		testx = uniform(-rrs, rrs);
+		testy = uniform(-rrs, rrs);
+		testz = uniform(-rrs, rrs);
+	}	
+	todas[0].p[0] = testx;
+	todas[0].p[1] = testy;
+	todas[0].p[2] = testz;	
 	
 	
 	int i = 0;

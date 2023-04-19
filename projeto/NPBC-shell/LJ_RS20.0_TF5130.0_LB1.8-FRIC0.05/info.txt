@@ -10,5 +10,5 @@ Carga central = 50.0
 Partículas positivas = 30
 Partículas negativas = 80
 Número de passos = 1026000
-Tempo de execução: 871.816s
-Seed aleatória: 1679697819
+Tempo de execução: 873.795s
+Seed aleatória: 1679870338

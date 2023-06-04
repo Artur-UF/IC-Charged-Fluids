@@ -7,6 +7,7 @@
 double uniform(double min, double max) {
 	/*
 	Função que gera um número aleatório em uma distribuição uniforme
+	Para int: [min, max)
 	*/
 	double random  = ((double) rand()) / RAND_MAX;
 	double range = (max - min) * random;

@@ -74,7 +74,7 @@ neg = int(n-pos)
 nbins = 90
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}'
+path = f'LJ_RS{rs:.1f}_TF{tf:.1f}_LB{lb:.1f}-FRIC0.05'
 nframes = 10000
 
 frames = binstolist(path, n, nframes)
@@ -130,8 +130,8 @@ for ri, rho in zip(r, bins2):
 	p_neg += rho*(ri**2)*delr
 p_neg *= 4*np.pi
 
-plt.plot(r, bins1, 'b-+', markersize=4, linewidth=1, label=f'{pos:.0f}*'+r'$Na^{+}$')
-plt.plot(r, bins2, 'g-+', markersize=4, linewidth=1, label=f'{neg:.0f}*'+r'$Cl^{-}$')
+plt.scatter(r, bins1, c='b', s=6, marker='^', label=f'{pos:.0f}*'+r'$Na^{+}$', zorder=3)
+plt.scatter(r, bins2, c='g', s=6, marker='*', label=f'{neg:.0f}*'+r'$Cl^{-}$', zorder=3)
 plt.xlabel('r')
 plt.ylabel(r'$\rho(r)$')
 plt.title('Densidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')

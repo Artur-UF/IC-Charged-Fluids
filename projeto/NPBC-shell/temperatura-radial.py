@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import struct
+plt.rcParams.update({"text.usetex" : True, "font.family" : "serif", "font.serif" : ["Computer Modern Serif"], "font.size" : 12})
 
 
 # Definindo a estrutura
@@ -108,10 +109,12 @@ while True:
 		r1 = r1[:-1]
 	else: break
 
+fig = plt.figure(layout='constrained')
+
 plt.plot(r1, binsT1, 'b-+', markersize=4, linewidth=1)
 plt.xlabel('r')
 plt.ylabel(r'$T(r)$')
-plt.title('Temperatura Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
+plt.title('Temperatura Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} '+r'$\mid$'+f' carga central = {ccentral} '+r'$\mid$'+f' snaps = {nframes}')
 plt.grid()
 plt.savefig(os.path.join(path, 'Temp-rad.png'), dpi=200)
 		

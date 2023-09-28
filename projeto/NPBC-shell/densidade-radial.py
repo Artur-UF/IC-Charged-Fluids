@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import struct
+plt.rcParams.update({"text.usetex" : True, "font.family" : "serif", "font.serif" : ["Computer Modern Serif"], "font.size" : 12})
 
 
 # Definindo a estrutura
@@ -104,6 +105,8 @@ x2, y2 = np.loadtxt('testneg.dat', unpack=True)
 
 xr, delxr = np.linspace(x1[0], x1[-1], len(x1), retstep=True)
 
+fig = plt.figure(layout='constrained')
+
 plt.plot(x1, y1, 'k')
 plt.plot(x2, y2, 'r')
 
@@ -134,9 +137,11 @@ plt.scatter(r, bins1, c='b', s=6, marker='^', label=f'{pos:.0f}*'+r'$Na^{+}$', z
 plt.scatter(r, bins2, c='g', s=6, marker='*', label=f'{neg:.0f}*'+r'$Cl^{-}$', zorder=3)
 plt.xlabel('r')
 plt.ylabel(r'$\rho(r)$')
-plt.title('Densidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} | carga central = {ccentral} | snaps = {nframes}')
+plt.title('Densidade Radial\n'+r'$\lambda_{B}=$'+f'{lb:.1f} '+r'$\mid$'+f' carga central = {ccentral} '+r'$\mid$'+f' snaps = {nframes}')
 plt.grid()
 plt.legend()
+plt.xlim(10.5, 19.5)
+plt.ylim(0, 0.013)
 plt.savefig(os.path.join(path, 'drad-comp.png'), dpi=200)
 print(f'Número de partículas:\n\tMinhas\tTeoria\nCla+ = {p_pos:.3f}\t{p_pos_t:.3f}\nCl- = {p_neg:.3f}\t{p_neg_t:.3f}')
 
